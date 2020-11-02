@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head th:replace="@{/commons/_common_header} :: common_header(~{::title},~{::link},~{::style})">
+    <title>日志管理</title>
+
+    <link rel="stylesheet" th:href="@{/vendors/jsgrid/jsgrid.min.css}">
+    <link rel="stylesheet" th:href="@{/vendors/jsgrid/jsgrid-theme.min.css}">
+    <link rel="stylesheet" th:href="@{/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css}">
+
+    <style>
+        .card .card-body {
+            padding: 1.75rem 1.75rem 0 1.75rem;
+        }
+        .size{
+            width: 100%;
+            height: 100%;
+        }
+        .date-label-div{
+            width: auto;
+            height: 34px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .date-div{
+            width: 150px;
+            height:36px;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+    <div th:replace="@{/commons/_navbar} :: navbar" />
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_settings-panel.html -->
+        <div th:replace="@{/commons/_settings-panel} :: settings-panel" />
+        <!-- partial -->
+        <!-- partial:partials/_sidebar.html -->
+        <div th:replace="@{/commons/_sidebar} :: sidebar" />
+        <!-- partial -->
+        <div class="main-panel">
+            <div class="card">
+                <div class="card-body">
+                    <button id="search-log" class="float-right btn btn-primary">查询</button>
+                    <div class="row">
+
+                        <div class="date-label-div">
+                            <label for="preDate" style="font-size: 1rem; margin: 0 auto;">起始日期:</label>
+                        </div>
+                        <div id="preTime" class="input-group date datepicker date-div">
+                            <input id="preDate" type="text" class="size">
+                            <span class="input-group-addon input-group-append border-left" style="display: none;">
+                                <span class="mdi mdi-calendar input-group-text"></span>
+                            </span>
+                        </div>
+
+                        <div style="width: 20px;height: 30px;display: flex;justify-content: center;align-items: center;">
+                            <span>~</span>
+                        </div>
+
+                        <div class="date-label-div">
+                            <label for="nextDate" style="font-size: 1rem;margin: 0 auto;">终止日期:</label>
+                        </div>
+                        <div id="nextTime" class="input-group date datepicker date-div">
+                            <input id="nextDate" type="text" class="size">
+                            <span class="input-group-addon input-group-append border-left" style="display: none;">
+                                <span class="mdi mdi-calendar input-group-text"></span>
+                            </span>
+                        </div>
+
+                        <div class="date-label-div" style="margin-left: 50px">
+                            <label for="recordUsername" style="font-size: 1rem;margin: 0 auto;">记录账号:</label>
+                        </div>
+                        <div class="date-div input-group">
+                            <select id="recordUsername" type="text" class="size">
+                                <option value=""></option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div id="js-grid-log" class="pt-3"></div>
+                    </div>
+                </div>
+            </div>
+            <div th:replace="@{commons/_footer} :: footer" />
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+<!-- container-scroller -->
+
+<div th:replace="@{/commons/_common_foot_js} :: footjs"></div>
+
+<script th:src="@{/vendors/jsgrid/jsgrid.min.js}"></script>
+<script th:src="@{/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js}"></script>
+</body>
+<script>
+    var logGrid = $("#js-grid-log");
+    var btnSearchLog = $("#search-log");
+    var divPreTime = $("#preTime");
+    var divNextTime = $("#nextTime");
+    var inputPreDate = $("#preDate");
+    var inputNextDate = $("#nextDate");
+    var selectRecUsername = $("#recordUsername");
+
+    btnSearchLog.on("click", function () {
+        var preDate = inputPreDate.val();
+        var nextDate = inputNextDate.val();
+        var createPerson = selectRecUsername.val();
+        //日期比较
+        if (preDate != "" && nextDate != ""){
+            var pre = new Date(preDate.replace("-", "/").replace("-", "/"));
+            var next = new Date(nextDate.replace("-", "/").replace("-", "/"));
+            if (pre > next){
+                alert("终止日期不能大于起始日期");
+                return;
+            }
+        }
+        if (logGrid.length){
+            logGrid.jsGrid({
+                height: "650px",
+                width: "100%",
+                // filtering: true,
+                sorting: true,
+                paging: true,
+                pageLoading: true,
+                autoload: true,
+                pagerFormat: "{first} {prev} {pages} {next} {last}",
+                pagePrevText: "上一页",
+                pageNextText: "下一页",
+                pageFirstText: "首页",
+                pageLastText: "尾页",
+                pageIndex: 1,
+                pageSize: 15,
+                pageButtonCount: 5,
+                controller: {
+                    loadData: function (filter) {
+                        // return $.ajax({
+                        //     type: "GET",
+                        //     url: "/log/getLogList",
+                        //     data: {
+                        //         "pageIndex":filter.pageIndex - 1,
+                        //         "pageSize": filter.pageSize,
+                        //         "log": filter.log,
+                        //         "createPerson": filter.createPerson,
+                        //         "createTime": filter.createTime
+                        //     }
+                        // })
+                        return $.ajax({
+                            type: "GET",
+                            url: "/log/getLogList",
+                            data: {
+                                "pageIndex":filter.pageIndex - 1,
+                                "pageSize": filter.pageSize,
+                                "preDate": preDate,
+                                "nextDate": nextDate,
+                                "createPerson": createPerson
+                            }
+                        })
+                    }
+                },
+                fields:[
+                    {
+                        title: "标识",
+                        name: "id",
+                        type: "text",
+                        width: 50,
+                        align: "center",
+                        visible: false
+                    },
+                    {
+                        title: "日志",
+                        name: "log",
+                        type: "text",
+                        width: 300,
+                        align: "center",
+                        validate:"required"
+                    },
+                    {
+                        title: "记录账号",
+                        name: "createPerson",
+                        type: "text",
+                        width: 150,
+                        align: "center"
+                    },
+                    {
+                        title: "记录时间",
+                        name: "createTime",
+                        type: "text",
+                        width: 150,
+                        align: "center"
+                    }
+                    // {
+                    //     type: "control",
+                    //     editButton: false,
+                    //     deleteButton: false
+                    // }
+                ]
+            })
+        }
+    });
+
+    $(function () {
+        if (divPreTime.length) {
+            divPreTime.datepicker({
+                enableOnReadonly: true,
+                todayHighlight: true,
+                format: 'yyyy-mm-dd'
+            })
+        }
+
+        if (divNextTime.length) {
+            divNextTime.datepicker({
+                enableOnReadonly: true,
+                todayHighlight: true,
+                format: 'yyyy-mm-dd'
+            })
+        }
+
+        $.ajax({
+            url: "/log/getCreatePersonList",
+            type: "post",
+            data: {},
+            success: function (data) {
+                for (var i = 0; i < data.length; i++){
+                    selectRecUsername.append("<option value=" + data[i].createPerson + ">" + data[i].createPerson + "</option>");
+                }
+            }
+        });
+
+        btnSearchLog.trigger('click');
+    })
+</script>
+</html>

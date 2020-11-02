@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head th:replace="@{/commons/_common_header} :: common_header(~{::title},~{::link},~{::style})">
+    <title>权限管理</title>
+
+    <link rel="stylesheet" th:href="@{/vendors/jsgrid/jsgrid.min.css}">
+    <link rel="stylesheet" th:href="@{/vendors/jsgrid/jsgrid-theme.min.css}">
+
+    <style>
+        .jsgrid .jsgrid-table .jsgrid-filter-row input[type=text] {
+            height: 35px;
+        }
+        .card .card-body {
+            padding: 1.75rem 1.75rem 0 1.75rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+    <div th:replace="@{/commons/_navbar} :: navbar" />
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_settings-panel.html -->
+        <div th:replace="@{/commons/_settings-panel} :: settings-panel" />
+        <!-- partial -->
+        <!-- partial:partials/_sidebar.html -->
+        <div th:replace="@{/commons/_sidebar} :: sidebar" />
+        <!-- partial -->
+        <div class="main-panel">
+<!--            <div class="content-wrapper">-->
+<!--                <div class="row grid-margin">-->
+<!--                    <div class="col-12">-->
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">权限管理</h4>
+                                <!--<p class="card-description">A basic example of js-grid</p>-->
+                                <div id="permission-info" class="pt-3"></div>
+                            </div>
+                        </div>
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+            <div th:replace="@{commons/_footer} :: footer" />
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+<!-- container-scroller -->
+
+<div th:replace="@{/commons/_common_foot_js} :: footjs"></div>
+
+<script th:src="@{/vendors/jsgrid/jsgrid.min.js}"></script>
+<!--<script th:src="@{/myjs/js-grid.js}"></script>-->
+</body>
+
+<script>
+    (function ($) {
+        'use strict';
+        $(function () {
+            if ($("#permission-info").length) {
+                $("#permission-info").jsGrid({
+                    height: "650px",
+                    width: "100%",
+                    filtering: true,
+                    editing: true,
+                    inserting: true,
+                    sorting: true,
+                    paging: true,
+                    autoload: true,
+                    pageLoading:true,
+                    pagerFormat: "{first} {prev} {pages} {next} {last}",
+                    pagePrevText: "上一页",
+                    pageNextText: "下一页",
+                    pageFirstText: "首页",
+                    pageLastText: "尾页",
+                    pageSize: 15,
+                    pageButtonCount: 5,
+                    deleteConfirm: "确定删除该权限?同时会删除所有用户权限中的该权限",
+                    // data: db.permission,
+                    controller: {
+                        loadData: function(filter) {
+                            filter.pageIndex = filter.pageIndex - 1;
+                            return $.ajax({
+                                type: "post",
+                                url: "/permission/selectPermissions",
+                                contentType: "application/json",
+                                dataType: "json",
+                                data: JSON.stringify(filter)
+                            })
+                        },
+                        insertItem: function(insertingClient) {
+                            return $.ajax({
+                                type: "post",
+                                url: "/permission/insertPermission",
+                                contentType: "application/json",
+                                dataType: "json",
+                                data: JSON.stringify(insertingClient),
+                                success: function (data) {
+                                    if (data.code == 0){
+                                        $("#permission-info").jsGrid("reset");
+                                    }
+                                }
+                            });
+                        },
+                        updateItem: function(updatingClient) {
+                            return $.ajax({
+                                type: "post",
+                                url: "/permission/updatePermission",
+                                contentType: "application/json",
+                                dataType: "json",
+                                data: JSON.stringify(updatingClient),
+                                success:function (data) {
+                                    console.log(data);
+                                    if (data.code == 0){
+                                        $("#permission-info").jsGrid("reset");
+                                    }
+                                }
+                            })
+                        },
+                        deleteItem: function(deletingClient) {
+                            return $.ajax({
+                                type: "post",
+                                url: "/permission/deletePermission",
+                                contentType: "application/json",
+                                dataType: "json",
+                                data: JSON.stringify(deletingClient),
+                                success: function (data) {
+                                    if (data.code == 0){
+                                        alert(data.data.data);
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    fields: [
+                        {
+                            title: "标识",
+                            name: "id",
+                            type: "text",
+                            width: 50,
+                            align: "center",
+                            visible: false
+                        },
+                        {
+                            title: "名称",
+                            name: "menuName",
+                            type: "text",
+                            width: 150,
+                            align: "center",
+                            validate:"required"
+                        },
+                        {
+                            title: "URL",
+                            name: "url",
+                            type: "text",
+                            width: 150,
+                            align: "center"
+                        },
+                        {
+                            title: "权限",
+                            name: "menuCode",
+                            type: "text",
+                            width: 150,
+                            align: "center"
+                        },
+                        {
+                            title: "父权限",
+                            name: "parentId",
+                            type: "select",
+                            items: db.permission,
+                            valueField: "Id",
+                            textField: "Name",
+                            align: "center",
+                            width: 150
+                        },
+                        {
+                            type: "control"
+                        }
+                    ]
+                });
+            }
+        });
+    })(jQuery);
+</script>
+
+<script>
+    (function ($) {
+        (function () {
+            var db = {};
+
+            window.db = db;
+
+            db.permission = [
+                {
+                    Id: 0,
+                    Name: ""
+                }
+            ];
+
+            $.ajax({
+                url: "/permission/selectPermissionByParentId",
+                type: "post",
+                data: {"parentId": 0},
+                async: false,
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++){
+                        var permissionObj = {Id:data[i].id, Name: data[i].menuName};
+                        db.permission.push(permissionObj);
+                    }
+                }
+            })
+        }());
+    })(jQuery);
+</script>
+
+</html>

@@ -1,0 +1,62 @@
+spring:
+#  ldap:
+#    urls: ldap://localhost:389
+#    username: cn=Manager,dc=nas,dc=509,dc=com
+#    password: test
+#    base: dc=nas,dc=509,dc=com
+  datasource:
+    url: jdbc:mysql://localhost:3306/auto_docx?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=UTF8
+    username: root
+    password: 'test'
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+  devtools:
+    livereload:
+      enabled: true
+  mail:
+    host: smtp.163.com
+    username: 994662950@163.com
+    password: JTOAKWIRCXSQYSWY
+    default-encoding: utf-8
+#server:
+#  port: 8084
+
+#windos配置
+#mubanPath: "C://auto_docx//word//muban//"
+#reportPath: "C://auto_docx//word//report//"
+#uploadPath: "C://auto_docx//upload//"
+#downloadPath: "C://auto_docx//download//"
+#gitCodePath: "C://auto_docx//code//"
+#pretreatmentPath: "C://auto_docx//pretreatment//"
+#attachmentPath: "C://auto_docx//attachment//"
+
+#linux配置
+mubanPath: "/opt/auto_docx/word/muban/"
+reportPath: "/opt/auto_docx/word/report/"
+uploadPath: "/opt/auto_docx/upload/"
+downloadPath: "/opt/auto_docx/download/"
+gitCodePath: "/opt/auto_docx/code/"
+pretreatmentPath: "/opt/auto_docx/pretreatment/"
+attachmentPath: "/opt/auto_docx/attachment/"
+mybatis:
+  mapper-locations: classpath:mappers/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    org.springframework.web: warn
+    com.example.demo: warn
+    com.deepoove.poi: warn
+ldaprolestr: 14
+myldap:
+  url: ldap://127.0.0.1:389/
+  basedn: cn=users,dc=nas,dc=509,dc=com
+  username: cn=Manager,dc=nas,dc=509,dc=com
+  password: test
+
+

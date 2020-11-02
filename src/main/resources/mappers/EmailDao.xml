@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.EmailDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.EmailEntity">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="email_from" jdbcType="VARCHAR" property="emailFrom" />
+    <result column="email_to" jdbcType="VARCHAR" property="emailTo" />
+    <result column="email_subject" jdbcType="VARCHAR" property="emailSubject" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="email_attachment" jdbcType="VARCHAR" property="emailAttachment" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="email_content" jdbcType="LONGVARCHAR" property="emailContent" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from sys_email
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.entity.EmailEntity">
+    insert into sys_email (id, email_from, email_to, 
+      email_subject, create_time, email_attachment, 
+      state, user_id, email_content
+      )
+    values (#{id,jdbcType=VARCHAR}, #{emailFrom,jdbcType=VARCHAR}, #{emailTo,jdbcType=VARCHAR}, 
+      #{emailSubject,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{emailAttachment,jdbcType=VARCHAR}, 
+      #{state,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{emailContent,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.EmailEntity">
+    update sys_email
+    set email_from = #{emailFrom,jdbcType=VARCHAR},
+      email_to = #{emailTo,jdbcType=VARCHAR},
+      email_subject = #{emailSubject,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      email_attachment = #{emailAttachment,jdbcType=VARCHAR},
+      state = #{state,jdbcType=INTEGER},
+      user_id = #{userId,jdbcType=INTEGER},
+      email_content = #{emailContent,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select id, email_from, email_to, email_subject, create_time, email_attachment, state, 
+    user_id, email_content
+    from sys_email
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, email_from, email_to, email_subject, create_time, email_attachment, state, 
+    user_id, email_content
+    from sys_email
+  </select>
+</mapper>

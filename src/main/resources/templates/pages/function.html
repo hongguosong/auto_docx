@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head th:replace="@{/commons/_common_header} :: common_header(~{::title},~{::link},~{::style})">
+    <title>函数管理</title>
+    <!-- plugin css for this page -->
+    <link rel="stylesheet" th:href="@{/vendors/jsgrid/jsgrid.min.css}">
+    <link rel="stylesheet" th:href="@{/vendors/jsgrid/jsgrid-theme.min.css}">
+    <link rel="stylesheet" th:href="@{/vendors/jquery-contextmenu/jquery.contextMenu.min.css}">
+    <link rel="stylesheet" th:href="@{/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css}">
+
+    <style>
+        /*.accordion .card .card-body {*/
+        /*padding: 0;*/
+        /*}*/
+        /*.accordion > .card .card-header {*/
+        /*margin-bottom: 0;*/
+        /*border-bottom: 1px solid #e7eaed;*/
+        /*}*/
+        /*#function-info .jsgrid-grid-body {*/
+        /*height: 350px!important;*/
+        /*}*/
+        /*#function-history-info .jsgrid-grid-body {*/
+        /*height: 352px!important;*/
+        /*}*/
+        .jsgrid .jsgrid-table .jsgrid-filter-row select {
+            height: 27px !important;
+            font-size: 11px;
+        }
+
+        .jsgrid .jsgrid-table .jsgrid-filter-row input[type=text] {
+            height: 20px !important;
+        }
+
+        .my-div {
+            height: 350px;
+            width: 100%;
+            border: 1px solid #c4e2ff;
+        }
+
+        .my-title {
+            text-align: center;
+            padding: 0.5rem;
+            font-size: 1.25rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .my-content ul li {
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .jsgrid-table .grid-select-my td {
+            background-color: #c4e2ff;
+        }
+
+        #problemTable .grid-select-my td {
+            background-color: #c4e2ff;
+        }
+
+        @media (min-width: 900px) {
+            #funcRelationModal .modal-dialog {
+                max-width: 800px;
+                margin: 30px auto;
+            }
+        }
+
+        @media (min-width: 900px) {
+            #funcProjectModal .modal-dialog {
+                max-width: 500px;
+                margin: 30px auto;
+            }
+        }
+
+        @media (min-width: 900px) {
+            #funcProblemModal .modal-dialog {
+                max-width: 800px;
+                margin: 30px auto;
+            }
+        }
+
+        @media (min-width: 1800px) {
+            .col-xx {
+                flex-basis: 0;
+                flex-grow: 1;
+                max-width: 100%;
+            }
+            .col-xx-auto {
+                flex: 0 0 auto;
+                width: auto;
+                max-width: 100%;
+            }
+            .col-xx-3 {
+                flex: 0 0 25%;
+                max-width: 25%;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-check {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            margin-bottom: 0;
+        }
+
+        #funcProblemModal .modal-dialog .modal-content .modal-body {
+            padding: 5px 35px!important;
+        }
+
+        #funcProblemModal input[disabled], #funcProblemModal textarea[disabled] {
+            background-color: white;
+        }
+    </style>
+</head>
+<body onload="onLoad()">
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+    <div th:replace="@{/commons/_navbar} :: navbar"/>
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_settings-panel.html -->
+        <div th:replace="@{/commons/_settings-panel} :: settings-panel"/>
+        <!-- partial -->
+        <!-- partial:partials/_sidebar.html -->
+        <div th:replace="@{/commons/_sidebar} :: sidebar"/>
+        <!-- partial -->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="row">
+                    <div class="col-12 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-xl-5 col-lg-12 grid-margin">
+                                        <div id="function-info" class=""></div>
+                                    </div>
+                                    <div class="col-xl-7 col-lg-12 grid-margin">
+                                        <div class="row" id="function-vue">
+                                            <div class="col-md-6 col-xl-6 grid-margin stretch-card">
+                                                <div class="card border-light border" id="card_comment">
+                                                    <div class="text-center p-2">
+                                                        <h3 style="margin-bottom: 0;">函数被引用型号</h3>
+                                                    </div>
+                                                    <table class="table table-bordered" >
+                                                        <tr>
+                                                            <td colspan="5">
+                                                                <ul class="list-star" style="height: 30px; width: 100%;overflow: auto;">
+                                                                    <li v-for="item in project" v-text="item.name" style="display: inline-block;"></li>
+                                                                </ul>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                    <div class="text-center p-2">
+                                                        <h3 style="margin-bottom: 0;">函数明细</h3>
+                                                    </div>
+                                                    <table class="table table-bordered">
+                                                        <tr>
+                                                            <td style="width: 65px;">名称</td>
+                                                            <td>
+                                                                <input v-model="name" style="width: 100%;border: 0;"/>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>说明</td>
+                                                            <td>
+                                                                <textarea rows="6" v-model="comment" style="line-height: 20px; border: 0; width: 100%;"></textarea>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="width: 65px;">验证码</td>
+                                                            <td>
+                                                                <span v-text="hashValue" style="width: 100%;border: 0;"/>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="width: 65px;">返回类型</td>
+                                                            <td>
+                                                                <span v-text="returnType" style="width: 100%;border: 0;"/>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="width: 65px;">创建时间</td>
+                                                            <td>
+                                                                <span v-text="createTime" style="width: 100%;border: 0;"/>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="width: 65px;">更新时间</td>
+                                                            <td>
+                                                                <span v-text="updateTime" style="width: 100%;border: 0;"/>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="width: 65px;">全名</td>
+                                                            <td>
+                                                                <span v-text="fullName" style="width: 100%;border: 0;word-break:break-all;"/>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-xl-6 grid-margin stretch-card pricing-card">
+                                                <div class="card border-light border pricing-card-body" id="card_var">
+                                                    <div class="text-center p-2">
+                                                        <h3 style="margin-bottom: 0;">全局变量</h3>
+                                                    </div>
+                                                    <div class="my-content" style="height: 160px;width: 100%; padding: -1px;overflow: auto;">
+                                                        <!--<ul class="list-star">-->
+                                                        <!--&lt;!&ndash;<li th:each="varObj : ${function.varList}" th:text="${varObj.name}">Email preview on air</li>&ndash;&gt;-->
+                                                        <!--<li v-for="item in globalVar">-->
+                                                        <!--<span v-text="item.name"></span>-->
+                                                        <!--<span>[</span>-->
+                                                        <!--<span>类名:</span>-->
+                                                        <!--<span v-text="item.cls"></span>-->
+                                                        <!--<span>默认值:</span>-->
+                                                        <!--<span v-text="item.val"></span>-->
+                                                        <!--<span>]</span>-->
+                                                        <!--</li>-->
+                                                        <!--</ul>-->
+                                                        <table class="table table-bordered" >
+                                                            <tr>
+                                                                <td style="width: 65px;">描述</td>
+                                                                <td colspan="5">
+                                                                    <!--<input v-bind:value="globalVarCpmment" style="width: 100%;"/>-->
+                                                                    <textarea rows="2" v-model="globalVarCpmment" style="line-height: 20px; border: 0; width: 100%;"></textarea>
+                                                                </td>
+                                                            </tr>
+                                                            <tr v-for="item in globalVar">
+                                                                <td>名称</td>
+                                                                <td v-text="item.name"></td>
+                                                                <td>类名</td>
+                                                                <td v-text="item.cls"></td>
+                                                                <!--<td>默认值</td>-->
+                                                                <!--<td v-text="item.val"></td>-->
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                    <div class="text-center">
+                                                        <h3 style="margin-bottom: 8px;">参数</h3>
+                                                    </div>
+                                                    <div class="my-content" style="height: 200px;width: 100%; padding: -1px;overflow: auto;">
+                                                        <!--<ul class="list-star">-->
+                                                        <!--<li v-for="item in param">-->
+                                                        <!--<span v-text="item.name"></span>-->
+                                                        <!--<span>[</span>-->
+                                                        <!--<span>类名:</span>-->
+                                                        <!--<span v-text="item.cls"></span>-->
+                                                        <!--<span>类型:</span>-->
+                                                        <!--<span v-text="item.type"></span>-->
+                                                        <!--<span>默认值:</span>-->
+                                                        <!--<span v-text="item.val"></span>-->
+                                                        <!--<span>]</span>-->
+                                                        <!--</li>-->
+                                                        <!--</ul>-->
+                                                        <table class="table table-bordered" >
+                                                            <tr>
+                                                                <td style="width: 65px;">输入说明</td>
+                                                                <td colspan="5">
+                                                                    <!--<input v-bind:value="globalVarCpmment" style="width: 100%;"/>-->
+                                                                    <textarea rows="2" v-model="paramInComment" style="line-height: 20px; border: 0; width: 100%;"></textarea>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>输出说明</td>
+                                                                <td colspan="5">
+                                                                    <!--<input v-bind:value="globalVarCpmment" style="width: 100%;"/>-->
+                                                                    <textarea rows="2" v-model="paramOutComment" style="line-height: 20px; border: 0; width: 100%;"></textarea>
+                                                                </td>
+                                                            </tr>
+                                                            <tr v-for="item in param">
+                                                                <td>名称</td>
+                                                                <td v-text="item.name"></td>
+                                                                <td>类名</td>
+                                                                <td v-text="item.cls"></td>
+                                                                <td>类型</td>
+                                                                <td v-text="item.type"></td>
+                                                                <!--<td>默认值</td>-->
+                                                                <!--<td v-text="item.val"></td>-->
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                    <!--<hr/>-->
+                                                    <!--<div class="text-center">-->
+                                                    <!--<h3>输出</h3>-->
+                                                    <!--</div>-->
+                                                    <!--<div class="my-content" style="height: 200px;width: 100%; padding: 5px;overflow: auto;">-->
+                                                    <!--<ul class="list-star">-->
+                                                    <!--<li v-for="item in output" v-text="item"></li>-->
+                                                    <!--</ul>-->
+                                                    <!--</div>-->
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-xl-6 grid-margin stretch-card">
+                                                <div class="card border-light border">
+                                                    <div class="text-center p-2">
+                                                        <h3>函数调用关系</h3>
+                                                    </div>
+                                                    <div id="funcChart" class="funcChart"
+                                                         style="height: 300px; width: 100%;"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-xl-6 grid-margin stretch-card pricing-card">
+                                                <div class="card border-light border">
+                                                    <div class="my-title">问题单</div>
+                                                    <div style="height: 300px;width: 100%; overflow: auto;">
+                                                        <table class="table table-bordered table-hover"
+                                                               id="problemTable" style="width: 100%;">
+                                                            <thead>
+                                                            <tr>
+                                                                <th style="display: none">
+                                                                    ID
+                                                                </th>
+                                                                <th style="width: 20%">
+                                                                    测试人
+                                                                </th>
+                                                                <th style="width: 20%">
+                                                                    测试时间
+                                                                </th>
+                                                                <th style="width: 60%">
+                                                                    问题描述
+                                                                </th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            <tr v-for="item in problemList" v-bind:class="problemTbSelected(item.id)" v-on:click="problemTbRowClick(item.id)">
+                                                                <td v-text="item.id" style="display: none;"></td>
+                                                                <td v-text="item.testPerson" style="width: 20%">
+                                                                    测试人
+                                                                </td>
+                                                                <td v-text="item.testTime" style="width: 20%">
+                                                                    测试时间
+                                                                </td>
+                                                                <td v-text="item.problemDescription" style="width: 60%">
+                                                                    问题描述
+                                                                </td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:replace="@{commons/_footer} :: footer"/>
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+<!-- container-scroller -->
+
+<div th:replace="@{/commons/_problem_modal} :: funcProblemModal"/>
+
+<div th:replace="@{/commons/_common_foot_js} :: footjs"></div>
+<script th:src="@{/vendors/jsgrid/jsgrid.min.js}"></script>
+<script th:src="@{/vendors/jquery-contextmenu/jquery.contextMenu.min.js}"></script>
+<script th:src="@{/vendors/echarts/echarts.js}"></script>
+<script th:src="@{/js/jquery-ui.js}"></script>
+<script th:src="@{/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js}"></script>
+<!-- End plugin js for this page -->
+<!-- Custom js for this page-->
+<!--<script th:src="@{/myjs/js-grid.js}"></script>-->
+<script th:src="@{/myjs/db.js}"></script>
+<script th:src="@{/myjs/problem-modal.js}"></script>
+<script type="text/javascript">
+    var w, h;
+    var functionGrid;
+    var modifyList = [
+        {Id: 0, Name: ''},
+        {Id: 1, Name: '新增'},
+        {Id: 2, Name: '修改'},
+        {Id: 3, Name: "延用"}
+    ];
+    var functionItem;
+    var funcRelationData = {
+        self: {},
+        parent: [
+        ],
+        child: [
+        ]
+    };
+    var functionChart = null;
+    //问题单ID
+    var problemId = 0;
+
+    //设置表单为只读状态（可用于查看功能），obj-被渲染form表单【上级元素对象】
+    var formIsReadOnly = function(obj, res){
+        if(obj){
+            var forms = obj.find('form');
+            forms.each(function(index, form){
+                for ( var i = 0; i < form.length; i++) {
+                    var element = form.elements[i];
+                    element.disabled = res;
+                }
+            });
+        }
+    };
+
+    function onLoad() {
+        w = window.innerWidth
+            || document.documentElement.clientWidth
+            || document.body.clientWidth;
+
+        h = window.innerHeight
+            || document.documentElement.clientHeight
+            || document.body.clientHeight;
+    }
+
+    function loadFunc(funcRelationData) {
+        var option = {
+            title: {
+                // text: '函数关系图'
+            },
+            tooltip: {
+                formatter: function (params) {
+                    // console.log(params); // 当我们想要自定义提示框内容时，可以先将鼠标悬浮的数据打印出来，然后根据需求提取出来即可
+                    if(params.data.fullName !== undefined && params.data.fullName !== null){ //显示函数的全名，需后台返回数据
+                        return params.data.fullName;
+                    }else{
+                        return params.data.name;
+                    }
+                }
+            },
+            //数据更新动画的时长。
+            animationDurationUpdate: 500,
+            //数据更新动画的缓动效果。
+            animationEasingUpdate: 'quinticInOut',
+            series: [
+                {
+                    type: 'graph',
+                    layout: 'none',
+                    symbol: 'circle',
+                    //symbol: 'recent',
+                    //节点大小
+                    symbolSize: [40, 40],
+                    //roam: true,
+                    //节点文字是否显示
+                    label: {
+                        normal: {
+                            show: true,
+                            backgroundColor: ''
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            shadowColor: 'rgba(0,255,255,0.95)',
+                            shadowBlur: 5,
+                            borderRadius: 5
+                        }
+                    },
+                    //指向箭头
+                    edgeSymbol: ['circle', 'arrow'],
+                    //edgeSymbolSize: [1, 10],
+                    //连接线文字大小
+                    edgeLabel: {
+                        normal: {
+                            textStyle: {
+                                fontSize: 5
+                            }
+                        }
+                    },
+                    data: [{
+                        name: 'Func1',
+                        x: 250,
+                        y: -100
+                    }, {
+                        name: 'Func2',
+                        x: 100,
+                        y: 100
+                    }, {
+                        name: 'Func3',
+                        x: 300,
+                        y: 100
+                    }, {
+                        name: 'Func4',
+                        x: 400,
+                        y: 300
+                    }, {
+                        name: 'Func5',
+                        x: 200,
+                        y: 300
+                    }],
+                    // links: [],
+                    links: [{
+                        //起点
+                        source: "Func1",
+                        //终点
+                        target: "Func2",
+                        symbolSize: [4, 7],
+                        label: {
+                            normal: {
+                                show: true,
+                                fontSize: 8
+                            }
+                        },
+                        lineStyle: {
+                            normal: {
+                                width: 1,
+                                curveness: 0.2
+                            }
+                        }
+                    }, {
+                        source: 'Func2',
+                        target: 'Func1',
+                        label: {
+                            normal: {
+                                show: true,
+                                fontSize: 8
+                            }
+                        },
+                        lineStyle: {
+                            normal: {curveness: 0.2}
+                        }
+                    }, {
+                        source: 'Func1',
+                        target: 'Func3'
+                    }, {
+                        source: 'Func2',
+                        target: 'Func3'
+                    }, {
+                        source: 'Func3',
+                        target: 'Func4'
+                    }, {
+                        source: 'Func3',
+                        target: 'Func5'
+                    }, {
+                        source: 'Func4',
+                        target: 'Func4'
+                    }],
+                    lineStyle: {
+                        normal: {
+                            opacity: 0.9,
+                            width: 2,
+                            curveness: 0
+                        }
+                    }
+                }
+            ]
+        };
+        if(funcRelationData){
+            option.series[0].data = [];
+            option.series[0].links = [];
+            var j=funcRelationData.parent.length;
+            var k=funcRelationData.child.length;
+            if(funcRelationData.self){
+                var x=0;
+                if(k<j){
+                    x = (400/j)*(j/2);
+                }else if(j<k){
+                    x = (400/k)*(k/2);
+                }else{
+                    if(k==0){
+                        x=200;
+                    }else{
+                        x = (400/k)*(k/2);
+                    }
+                }
+                option.series[0].data.push({id: funcRelationData.self.id, name: funcRelationData.self.name,fullName: funcRelationData.self.fullName, x: x, y: 100});
+            }
+            if(funcRelationData.parent){
+                for(var i=0; i<j; i++){
+                    option.series[0].data.push({id: funcRelationData.parent[i].procedureId, name: funcRelationData.parent[i].name, fullName: funcRelationData.parent[i].fullName, x: i*(400/j), y: -100});
+                    //option.series[0].links.push({source: funcRelationData.parent[i].name, target: funcRelationData.self.name});
+                    option.series[0].links.push({source: i+1, target: 0});
+                }
+            }
+            if(funcRelationData.child){
+                for(var i=0; i<k; i++){
+                    option.series[0].data.push({id: funcRelationData.child[i].calledId, name: funcRelationData.child[i].name, fullName: funcRelationData.child[i].fullName, x: i*(400/k), y: 300});
+                    //option.series[0].links.push({source: funcRelationData.self.name, target: funcRelationData.child[i].name});
+                    option.series[0].links.push({source: 0, target: j+i+1});
+                }
+            }
+        }
+        return option;
+    }
+
+    /*打开问题单模态框*/
+    function openFuncProblemModal(type) {
+        problemModal.edit = type;
+        $('#funcProblemModal').modal('show');
+    }
+
+    /*设置问题单*/
+    function setFuncProblemModal (id) {
+        $.ajax({
+            type: "post",
+            url: "/problem/getByProblemId?problemId=" + id,
+            contentType: "application/json",
+            dataType: "json",
+            success: function(result){
+                if(result.code == 0){
+                    problemModal.funcName = result.data.pbm.funcName;
+                    problemModal.testCaseId = result.data.pbm.testCaseId;
+                    problemModal.errorType = setErrorType(result.data.pbm.errorType);
+                    problemModal.errorLevel = result.data.pbm.errorLevel;
+                    problemModal.environment = result.data.pbm.testEnvironment;
+                    problemModal.testCaseName = result.data.pbm.testCaseName;
+                    problemModal.testInput = result.data.pbm.testInput;
+                    problemModal.problemDesc = result.data.pbm.problemDescription;
+                    problemModal.suggest = result.data.pbm.suggest;
+                    problemModal.solution = result.data.pbm.solution;
+                    problemModal.result = result.data.pbm.closedCycleResult;
+                    problemModal.testPerson = result.data.pbm.testPerson;
+                    problemModal.testTime = result.data.pbm.testTime;
+                    problemModal.remark = result.data.pbm.remark;
+                    if (result.data.pbm.other != null) {
+                        problemModal.other = JSON.parse(result.data.pbm.other);
+                    }
+                }
+            }
+        });
+    }
+
+    /*设置问题单错误类型*/
+    function setErrorType(errorType) {
+        var array = [];
+        var s1 = ""+errorType;
+        for (var i = 0; i < s1.length; i++) {
+            array.push(s1[i]);
+        }
+        return array;
+    }
+
+    // 更新函数相关描述
+    function updateFunComment(functionVue) {
+        if(!functionItem){
+            $.showWarningToast("请先选择一个函数.")
+            return;
+        }
+        var data = {
+            procedureId: functionItem.id,
+            name: functionVue.name,
+            comment: functionVue.comment,
+            varDescription: functionVue.globalVarCpmment,
+            inputDescription: functionVue.paramInComment,
+            outputDescription: functionVue.paramOutComment
+        };
+        $.ajax({
+            type: "post",
+            url: "/fundesc/add",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify(data),
+            success: function(result){
+                if(result.code == 0){
+                    $.showSuccessToast("更新成功.");
+                }
+            },
+            error: function(data){
+
+            }
+        });
+    }
+
+    // 调用方式：$("xxxxx").getform();
+    function getform () {
+        var obj = {};
+        var array = $(this).serializeArray();
+        $.each(array, function () {
+            obj[this.name] = this.value;
+        });
+        return obj;
+    }
+    // 调用方式： $("xxx").setform(json);
+    function setform (jsonValue) {
+        var obj = this;
+        $.each(jsonValue, function (name, ival) {
+            var $input = obj.find("input:[name=" + name + "]");
+            if ($input.attr("type") == "radio" || $input.attr("type") == "checkbox") {
+                $input.each(function () {
+                    if (Object.prototype.toString.apply(ival) == '[object Array]') { // 是复选框，并且是数组
+                        for (var i = 0; i < ival.length; i++) {
+                            if ($(this).val() == ival[i])
+                                $(this).attr("checked", "checked");
+                        }
+                    } else {
+                        if ($(this).val() == ival)
+                            $(this).attr("checked", "checked");
+                    }
+                });
+            } else if ($input.attr("type") == "textarea") { // 多行文本框
+                obj.find("[name=" + name + "]").html(ival);
+            } else {
+                obj.find("[name=" + name + "]").val(ival);
+            }
+        });
+    }
+
+    function funcGridClick() {
+        $("tbody tr").click(function () { //给每个tr 绑定点击事件 主要锁定每个tr
+            var trs = $(this).parent().find('tr'); //获取所有tr
+            if (trs.hasClass('grid-select-my')) { //判断这些tr 有没有Class ‘on’’
+                trs.removeClass('grid-select-my');//把class on 移除
+            }
+            $(this).addClass('grid-select-my');//点击的tr 添加 on class 用于改变样式
+        });
+    }
+
+    $(document).ready(function () {
+        var functionVue = new Vue({
+            el: '#function-vue',
+            data: {
+                problemTbSelectId: 0,
+                name: "",
+                comment: "",
+                hashValue: "",
+                returnType: "",
+                createTime: "",
+                updateTime: "",
+                fullName: "",
+                paramInComment: "",
+                paramOutComment: "",
+                param: [
+                    // { name: "input1", cls: "Integer", type: "in" , val: ""},
+                    // { name: "input2", cls: "Integer", type: "out" , val: ""},
+                    // { name: "input3", cls: "Integer", type: "inout" , val: ""}
+                ],
+                globalVarCpmment: "",
+                globalVar: [
+                    // { name: "input1", cls: "Integer", val: ""},
+                    // { name: "input2", cls: "Integer", val: ""},
+                    // { name: "input3", cls: "Integer", val: ""}
+                ],
+                problemList: [],
+                project: []
+            },
+            methods: {
+                problemTbSelected: function (id) {
+                    if(id == this.problemTbSelectId) {
+                        return "grid-select-my";
+                    }else{
+                        return "";
+                    }
+                },
+                problemTbRowClick: function (id) {
+                    this.problemTbSelectId = id;
+                    problemId = id;
+                }
+            }
+        });
+
+        var functionElements = document.getElementById('funcChart');
+        var functionChartSelf = echarts.init(functionElements);
+        functionChartSelf.setOption(loadFunc(funcRelationData));
+
+        if ($("#function-info").length) {
+            functionGrid = $("#function-info").jsGrid({
+                height: "803px",
+                width: "100%",
+                filtering: true,
+                // editing: true,
+                //inserting: true,
+                sorting: true,
+                paging: true,
+                autoload: true,
+                pageSize: 23,
+                pageButtonCount: 5,
+                deleteConfirm: "你确定要删除当前项吗?",
+                pagerFormat: "{first} {prev} {pages} {next} {last}",
+                pagePrevText: "上一页",
+                pageNextText: "下一页",
+                pageFirstText: "首页",
+                pageLastText: "尾页",
+                pageLoading: true,
+                controller: {
+                    loadData: function (filter) {
+                        return $.ajax({
+                            type: "post",
+                            url: "/function/selectProcedureAll",
+                            data: JSON.stringify(filter),
+                            contentType: "application/json",
+                            dataType: "json",
+                            async: false
+                        });
+                    }
+                },
+                fields: [
+                    {
+                        title: "标识",
+                        name: "id",
+                        type: "number",
+                        width: 50,
+                        visible: false
+                    },
+                    {
+                        title: "函数名",
+                        name: "name",
+                        type: "text",
+                        align: "center",
+                        width: 50
+                    },
+                    {
+                        title: "包名.函数名",
+                        name: "longName",
+                        type: "text",
+                        align: "center",
+                        width: 120
+                        //visible: false
+                    },
+                    {
+                        title: "全名",
+                        name: "fullName",
+                        type: "text",
+                        align: "center",
+                        width: 120,
+                        visible: false
+                    },
+                    {
+                        title: "验证码",
+                        name: "hashValue",
+                        type: "text",
+                        align: "center",
+                        width: 120,
+                        visible: false
+                    },
+                    {
+                        title: "版本",
+                        name: "version",
+                        type: "text",
+                        align: "center",
+                        width: 30
+                    },
+                    {
+                        title: "代码行数",
+                        name: "lineCount",
+                        type: "text",
+                        align: "center",
+                        width: 32
+                    },
+                    {
+                        title: "返回值类型",
+                        name: "returnType",
+                        type: "text",
+                        align: "center",
+                        width: 50,
+                        visible: false
+                    },
+                    {
+                        title: "录入日期",
+                        name: "createTime",
+                        type: "text",
+                        align: "center",
+                        width: 50,
+                        visible: false
+                    },
+                    {
+                        title: "更新日期",
+                        name: "updateTime",
+                        type: "text",
+                        align: "center",
+                        width: 50,
+                        visible: false
+                    }
+                ],
+                onDataLoaded: function(args) {
+                    // $("#function-info .jsgrid-grid-body").css("height", "703px");
+                    funcGridClick();
+                },
+                rowClass: function (item, itemIndex) {
+                    if(functionItem){
+                        if(item.id == functionItem.id){
+                            return "grid-select-my";
+                        }
+                    }
+                },
+                rowClick: function (item, itemIndex) {
+                    functionItem = item.item;
+                    functionVue.hashValue = functionItem.hashValue;
+                    functionVue.returnType = functionItem.returnType;
+                    if(functionItem.createTime && functionItem.createTime.length>=10){
+                        functionVue.createTime = functionItem.createTime.substr(0,10);
+                    }
+                    if(functionItem.updateTime && functionItem.updateTime.length>=10){
+                        functionVue.updateTime = functionItem.updateTime.substr(0,10);
+                    }
+                    functionVue.fullName = functionItem.fullName;
+                    $.ajax({
+                        type: "post",
+                        url: "/fundesc/selectByProcedureId?procedureId=" + functionItem.id,
+                        contentType: "application/json",
+                        dataType: "json",
+                        success: function(result){
+                            if(result.code == 0){
+                                if(result.data.list.length === 0){
+                                    functionVue.name = "";
+                                    functionVue.comment = "";
+                                    functionVue.globalVarCpmment = "";
+                                    functionVue.paramInComment = "";
+                                    functionVue.paramOutComment = "";
+                                }else if(result.data.list.length > 0){
+                                    functionVue.name = result.data.list[0].name;
+                                    functionVue.comment = result.data.list[0].comment;
+                                    functionVue.globalVarCpmment = result.data.list[0].varDescription;
+                                    functionVue.paramInComment = result.data.list[0].inputDescription;
+                                    functionVue.paramOutComment = result.data.list[0].outputDescription;
+                                }
+                            }
+                        },
+                        error: function(data){
+
+                        }
+                    });
+                    $.ajax({
+                        type: "post",
+                        url: "/function/findProjectByProcedureId?procedureId=" + functionItem.id,
+                        contentType: "application/json",
+                        dataType: "json",
+                        success: function(result){
+                            if(result.code == 0){
+                                functionVue.project = result.data.list;
+                            }
+                        }
+                    });
+                    $.ajax({
+                        type: "post",
+                        url: "/function/findProcedureParamByProcedureId?procedureId=" + functionItem.id,
+                        contentType: "application/json",
+                        dataType: "json",
+                        success: function(result){
+                            if(result.code == 0){
+                                functionVue.param = result.data.list;
+                            }
+                        }
+                    });
+                    $.ajax({
+                        type: "post",
+                        url: "/function/findProcedureVarByProcedureId?procedureId=" + functionItem.id,
+                        contentType: "application/json",
+                        dataType: "json",
+                        success: function(result){
+                            if(result.code == 0){
+                                functionVue.globalVar = result.data.list;
+                            }
+                        }
+                    });
+                    $.ajax({
+                        type: "post",
+                        url: "/problem/getByProcedureId?procedureId=" + functionItem.id,
+                        contentType: "application/json",
+                        dataType: "json",
+                        success: function(result){
+                            if(result.code == 0){
+                                functionVue.problemList = result.data.list;
+                                if(result.data.list.length > 0){
+                                    functionVue.problemTbSelectId = result.data.list[0].id;
+                                    problemId = result.data.list[0].id;
+                                }else if(result.data.list.length == 0){
+                                    functionVue.problemTbSelectId = 0;
+                                    problemId = 0;
+                                }
+                            }
+                        }
+                    });
+                    $.ajax({
+                        type: "post",
+                        url: "/function/getProcedureCall?procedureId=" + functionItem.id,
+                        success: function(result){
+                            funcRelationData = result;
+                            functionChartSelf.dispose();
+                            try{
+                                functionChartSelf = echarts.init(functionElements);
+                                functionChartSelf.setOption(loadFunc(funcRelationData));
+                            }catch( e){
+
+                            }
+                        }
+                    });
+                },
+                onPageChanged: function(args) {
+                    setTimeout(function () {
+                        funcGridClick();
+                    }, 1000);
+                    // console.log(args.pageIndex);
+                }
+            });
+        }
+
+        /*模态框消失后事件*/
+        $('#funcProblemModal').on('hidden.bs.modal', function (e) {
+            // do something...
+            // functionVue.problemTbSelectId = 0;
+            // problemId = 0;
+        });
+
+        $(function(){
+            $(".modal-dialog").draggable();
+        });
+
+        $.contextMenu({
+            selector: '#problemTable',
+            callback: function (key, options) {
+                if(key === "add") {
+                    /*type = key;
+                    resetFuncProblemModal();
+                    openFuncProblemModal(false);*/
+                } else if(key === "search") {
+                    type = key;
+                    if (problemId === 0) {
+                        $.showWarningToast("请先选中一个问题单");
+                        return;
+                    }
+                    setFuncProblemModal(problemId);
+                    openFuncProblemModal(true);
+                } else if(key === "modify") {
+                    /*type = key;
+                    if (problemId === 0) {
+                        window.alert("请先选中一个问题单");
+                        return;
+                    }
+                    setFuncProblemModal(problemId);
+                    openFuncProblemModal(false);*/
+                }
+            },
+            items: {
+                /*"add": {
+                    name: "增加",
+                    //icon: "add"
+                    icon: function () {
+                        return 'context-menu-icon mdi mdi-application';
+                    }
+                },*/
+                "search": {
+                    name: "查看",
+                    icon: function () {
+                        return 'context-menu-icon mdi mdi-arrange-bring-forward';
+                    }
+                },
+                /*"modify": {
+                    name: "修改",
+                    icon: function () {
+                        return 'context-menu-icon mdi mdi-arrange-send-backward';
+                    }
+                },*/
+                "sep1": "---------",
+                "quit": {
+                    name: "退出",
+                    icon: function () {
+                        return 'context-menu-icon context-menu-icon-quit';
+                    }
+                }
+            }
+        });
+
+        $.contextMenu({
+            selector: '#card_comment',
+            callback: function (key, options) {
+                if(key == "modify") {
+                    updateFunComment(functionVue);
+                }
+            },
+            items: {
+                "modify": {
+                    name: "更新",
+                    icon: function () {
+                        return 'context-menu-icon mdi mdi-arrange-send-backward';
+                    }
+                },
+                "sep1": "---------",
+                "quit": {
+                    name: "退出",
+                    icon: function () {
+                        return 'context-menu-icon context-menu-icon-quit';
+                    }
+                }
+            }
+        });
+
+        $.contextMenu({
+            selector: '#card_var',
+            callback: function (key, options) {
+                if(key == "modify") {
+                    updateFunComment(functionVue);
+                }
+            },
+            items: {
+                "modify": {
+                    name: "更新",
+                    icon: function () {
+                        return 'context-menu-icon mdi mdi-arrange-send-backward';
+                    }
+                },
+                "sep1": "---------",
+                "quit": {
+                    name: "退出",
+                    icon: function () {
+                        return 'context-menu-icon context-menu-icon-quit';
+                    }
+                }
+            }
+        });
+
+        if ($("#testTime").length) {
+            $('#testTime').datepicker({
+                enableOnReadonly: true,
+                todayHighlight: true,
+                format: 'yyyy-mm-dd'
+            });
+        }
+    });
+</script>
+</body>
+</html>

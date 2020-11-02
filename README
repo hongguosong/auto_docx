@@ -1,0 +1,12 @@
+1，git clone错误(没用)
+remote: Forbidden fatal: unable to access The requested URL returned error: 403
+解决方法：
+git config -l 查看配置
+配置
+$ git config --global --unset user.email
+$ git config --global --unset user.name
+
+2,开启ldap服务
+cd 到目录C:\OpenLDAP，执行 slapd -d 1 -f slapd.conf 启动服务
+C:\LdapBrowser282 双击lde.bat启动客户端
+

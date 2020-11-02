@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head th:replace="@{/commons/_common_header} :: common_header(~{::title},~{},~{::style})">
+    <title>项目新建</title>
+    <style>
+        .wizard > .steps > ul > li {
+            width: 33.3333%;
+        }
+
+        .wizard > .content {
+            height: 26em;
+        }
+    </style>
+</head>
+<body>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+    <div th:replace="@{/commons/_navbar} :: navbar" />
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_settings-panel.html -->
+        <div th:replace="@{/commons/_settings-panel} :: settings-panel" />
+        <!-- partial -->
+        <!-- partial:partials/_sidebar.html -->
+        <div th:replace="@{/commons/_sidebar} :: sidebar" />
+        <!-- partial -->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="row">
+                    <div class="col-12 grid-margin">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">新建项目</h4>
+                                <form id="project-add-form" action="#">
+                                    <div>
+                                        <h3>项目</h3>
+                                        <section>
+                                            <h3>项目</h3>
+                                            <div class="form-group">
+                                                <label>型号名称</label>
+                                                <input type="text" id="name" class="form-control">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>型号描述</label>
+                                                <textarea id="description" class="form-control" rows="6"></textarea>
+                                            </div>
+                                        </section>
+                                        <h3>Git相关</h3>
+                                        <section>
+                                            <h3>Git相关</h3>
+                                            <div class="form-group">
+                                                <label>Git地址</label>
+                                                <input type="url" id="gitAddress" class="form-control">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>用户名</label>
+                                                <input type="text" id="gitName" class="form-control">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>密码</label>
+                                                <input type="password" id="gitPassword" class="form-control">
+                                            </div>
+                                        </section>
+                                        <h3>完成</h3>
+                                        <section>
+                                            <h3>完成</h3>
+                                            <div class="form-group">
+                                                <label>创建人</label>
+                                                <input class="form-control" id="createPerson" type="text" readonly>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>创建时间</label>
+                                                <input class="form-control" id="createTime" type="text" readonly>
+                                            </div>
+                                        </section>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:replace="@{commons/_footer} :: footer" />
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+<!-- container-scroller -->
+
+<div th:replace="@{/commons/_common_foot_js} :: footjs"></div>
+<script th:src="@{/vendors/jquery-steps/jquery.steps.min.js}"></script>
+<script th:src="@{/vendors/jquery-validation/jquery.validate.min.js}"></script>
+<!--<script th:src="@{/myjs/project-wizard.js}"></script>-->
+
+<script>
+    var form = $("#project-add-form");
+    var now = new Date().Format("yyyy-MM-dd");
+    $("#createTime").attr("value", now);
+    $("#createPerson").attr("value", "王大锤");
+    form.children("div").steps({
+        headerTag: "h3",
+        bodyTag: "section",
+        transitionEffect: "slideLeft",
+        onFinished: function (event, currentIndex) {
+
+            var projectData = {
+                id: "",
+                name: $("#name").val(),
+                description: $("#description").val(),
+                gitAddress: $("#gitAddress").val(),
+                gitName: $("#gitName").val(),
+                gitPassword: $("#gitPassword").val(),
+                createPerson: $("#createPerson").val(),
+                createTime: now
+            };
+            if(!projectData.name){
+                $.toast({
+                    // heading: 'Danger',
+                    text: '请输入项目名称.',
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    loaderBg: '#f2a654',
+                    position: 'top-right'
+                });
+                return;
+            }
+            if(!projectData.gitAddress){
+                $.toast({
+                    // heading: 'Danger',
+                    text: '请输入git地址.',
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    loaderBg: '#f2a654',
+                    position: 'top-right'
+                });
+                return;
+            }else if(projectData.gitAddress.substr(0,4) != "http"){
+                $.toast({
+                    // heading: 'Danger',
+                    text: '请输入以"http"开头的git地址.',
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    loaderBg: '#f2a654',
+                    position: 'top-right'
+                });
+                return;
+            }
+            if(!projectData.gitName){
+                $.toast({
+                    // heading: 'Danger',
+                    text: '请输入git账户名称.',
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    loaderBg: '#f2a654',
+                    position: 'top-right'
+                });
+                return;
+            }
+            if(!projectData.gitPassword){
+                $.toast({
+                    // heading: 'Danger',
+                    text: '请输入git账户密码.',
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    loaderBg: '#f2a654',
+                    position: 'top-right'
+                });
+                return;
+            }
+            $.ajax({
+                type: "post",
+                url: "/project/add",
+                data: JSON.stringify(projectData),
+                dataType: "json",
+                contentType: "application/json",
+                success: function (result) {
+                    if(result.code == 0){
+                        $.showSuccessToast("", "添加项目成功.");
+                    };
+                },
+                error: function (data) {
+
+                }
+            });
+        },
+        labels: {
+            finish: "完成",
+            next: "下一步",
+            previous: "上一步"
+        }
+    });
+</script>
+</body>
+
+</html>

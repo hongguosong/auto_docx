@@ -1,0 +1,63 @@
+dn: dc=didispace,dc=com
+objectClass: top
+objectClass: domain
+
+dn: ou=people,dc=didispace,dc=com
+objectclass: top
+objectclass: organizationalUnit
+ou: people
+
+dn: cn=didi,ou=people,dc=didispace,dc=com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: didi
+sn: zhaiyongchao
+userPassword: {SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=
+
+dn: cn=hji,ou=people,dc=didispace,dc=com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: hji
+sn: hongguosong
+userPassword: ghu
+
+dn: dc=nas,dc=509,dc=com
+objectClass: domain
+objectClass: top
+dc: maxcrc
+
+dn: ou=People,dc=nas,dc=509,dc=com
+objectclass: top
+objectclass: organizationalUnit
+ou: People
+description: Container for user entries
+
+dn: cn=users,dc=nas,dc=509,dc=com
+objectclass: top
+objectclass: person
+objectclass: organizationalUnit
+cn: didi
+sn: zhaiyongchao
+userPassword: {SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=
+
+dn: uid=admin,cn=users,dc=nas,dc=509,dc=com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: admin
+sn: admin_a
+mail: 345@22.com
+userPassword: {SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=
+uid: admin
+
+dn: uid=xiejiahua,cn=users,dc=nas,dc=509,dc=com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+cn: xiejiahua
+sn: xiejiahua_a
+mail: xiejiahua@qq.com
+userPassword: {SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=
+uid: xiejiahua

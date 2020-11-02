@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>项目版本信息</title>
+    <!-- base:css -->
+    <link rel="stylesheet" href="../../vendors/mdi/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="../../vendors/feather/feather.css">
+    <link rel="stylesheet" href="../../vendors/css/vendor.bundle.base.css">
+    <!-- endinject -->
+    <!-- plugin css for this page -->
+    <link rel="stylesheet" href="../../vendors/bootstrap-datepicker/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="../../vendors/jquery-contextmenu/jquery.contextMenu.min.css">
+    <link rel="stylesheet" th:href="@{/vendors/jquery-toast-plugin/jquery.toast.min.css}">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <link rel="stylesheet" href="../../css/vertical-layout-light/style.css">
+    <!-- endinject -->
+    <link rel="shortcut icon" href="../../images/favicon.png"/>
+
+    <style>
+        .card-box {
+            padding: 0.5rem;
+        }
+
+        .card-body {
+            padding: 0.5rem !important;
+        }
+
+        .timeline:before {
+            left: 5% !important;
+        }
+
+        .timeline-wrapper.timeline-inverted {
+            padding-left: 0px !important;
+        }
+
+        .timeline-wrapper .timeline-badge {
+            left: calc(5% - 7px) !important;
+        }
+
+        .timeline-panel {
+            margin-left: 15% !important;
+            margin-right: 5% !important;
+            width: auto !important;
+        }
+
+        .mt-5 {
+            width: 100% !important;
+        }
+
+        .timeline-heading h6:hover {
+            cursor: pointer;
+        }
+
+        .page-body-wrapper {
+            padding-top: 0;
+        }
+
+        .sidebar {
+            width: 250px;
+        }
+
+        #time-line::-webkit-scrollbar { width: 0 !important }
+    </style>
+</head>
+<body>
+<div class="container-scroller">
+    <!--<nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">-->
+    <!--<div class="navbar-brand-wrapper d-flex align-items-center justify-content-between">-->
+    <!--<h3 th:text="${project.name}">aa</h3>-->
+    <!--</div>-->
+    <!--<div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">-->
+
+    <!--</div>-->
+    <!--</nav>-->
+
+    <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_sidebar.html -->
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+            <div class="row">
+                <div class="">
+                    <div class="timeline" style="overflow: auto; width: 250px;" id="time-line">
+                        <div class="timeline-wrapper timeline-inverted timeline-wrapper-info" th:id="${#strings.prepend(version.id,'pv')}"
+                             th:each="version : ${project.versionList}">
+                            <div class="timeline-badge"></div>
+                            <div class="timeline-panel">
+                                <div class="timeline-heading">
+                                    <h6 class="timeline-title" th:pv-id="${version.id}" th:project=" ${project.id}" style="font-size: 10px;word-break: break-all;"
+                                        th:version=" ${version.name}" th:project-name=" ${project.name}" th:text=" ${version.name}">Bootstrap 4 Alpha
+                                        4</h6>
+                                </div>
+                                <div th:each="commits: ${version.commitsList}">
+                                    <div class="timeline-body">
+                                        <p th:text=" ${commits.message}"></p>
+                                    </div>
+                                    <div class="timeline-footer d-flex align-items-center flex-wrap">
+                                        <span th:text=" ${commits.author}" class="font-weight-bold" style="word-break: break-word;">user 1</span>
+                                        <span class="ml-md-auto" th:text="${#strings.substring(commits.timestamp,0,10)} + ' ' + ${#strings.substring(commits.timestamp,11,19)}">27th July 2016</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <!-- partial -->
+        <div class="main-panel">
+            <iframe id="main-frame" src="" frameborder="0" height="100%" width="100%" scrolling="no"></iframe>
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+<!-- container-scroller -->
+
+<!-- base:js -->
+<script src="../../vendors/js/vendor.bundle.base.js"></script>
+<!-- endinject -->
+<!-- Plugin js for this page-->
+
+<!-- End plugin js for this page-->
+<!-- inject:js -->
+<script src="../../js/off-canvas.js"></script>
+<script src="../../js/hoverable-collapse.js"></script>
+<script src="../../js/template.js"></script>
+<script src="../../js/settings.js"></script>
+<script src="../../js/todolist.js"></script>
+<script th:src="@{/vendors/jquery-contextmenu/jquery.contextMenu.min.js}"></script>
+<script th:src="@{/vendors/sweetalert/sweetalert.min.js}"></script>
+<script th:src="@{/vendors/jquery-toast-plugin/jquery.toast.min.js}"></script>
+<script th:src="@{/myjs/comment.js}"></script>
+<!-- endinject -->
+<!-- Custom js for this page-->
+<script src="../../js/dashboard.js"></script>
+<!-- End custom js for this page-->
+<script>
+    var w, h;
+    function setIframeHeight(iframe) {
+        if (iframe) {
+            var iframeWin = iframe.contentWindow || iframe.contentDocument.parentWindow;
+            if (iframeWin.document.body) {
+                iframe.height = iframeWin.document.documentElement.scrollHeight || iframeWin.document.body.scrollHeight;
+            }
+        }
+    };
+    window.onload = function () {
+        // setIframeHeight(document.getElementById('main-frame'));
+        window.onresize();
+    };
+    // function reinitIframe(){
+    //     var iframe = document.getElementById("main-frame");
+    //     try{
+    //         var bHeight = iframe.contentWindow.document.body.scrollHeight;
+    //         var dHeight = iframe.contentWindow.document.documentElement.scrollHeight;
+    //         var height = Math.max(bHeight, dHeight);
+    //         iframe.height = height;
+    //         console.log(height);
+    //     }catch (ex){}
+    // }
+
+    //window.setInterval("setIframeHeight(document.getElementById('main-frame'))", 200);
+
+    // function iframeAutoFit(iframeObj){
+    //     setTimeout(function(){if(!iframeObj) return;iframeObj.height=(iframeObj.Document?iframeObj.Document.body.scrollHeight:iframeObj.contentDocument.body.offsetHeight);},200)
+    // }
+
+    window.onresize = function () {
+        w = window.innerWidth
+            || document.documentElement.clientWidth
+            || document.body.clientWidth;
+
+        h = window.innerHeight
+            || document.documentElement.clientHeight
+            || document.body.clientHeight;
+        if(w < 1370) {
+            $("#main-frame").attr("height", "2200px");
+            $("#time-line").css("height", "2200px");
+        } else {
+            $("#main-frame").attr("height", "932px");
+            $("#time-line").css("height", "932px")
+        }
+    };
+
+    var versionSelect = null;
+
+    function clearToast() {
+        $(".jq-toast-wrap .jq-icon-warning").css("display", "none");
+        $(".jq-toast-wrap .jq-icon-success").css("display", "none");
+        $(".jq-toast-wrap .jq-icon-error").css("display", "none");
+    }
+
+    $(document).ready(function () {
+        // $(".timeline-heading h6").click(function () {
+        //     console.log($(this));
+        //     console.log($(".timeline-heading h6"));
+        //     var srcTarget = "version?project=" + $(this).attr("project") + "&version=" + $(this).attr("version") + "&projectName=" + $(this).attr("project-name");
+        //     $("#main-frame").attr("src", srcTarget);
+        //     if (versionSelect) {
+        //         versionSelect.removeClass("timeline-wrapper-primary");
+        //         versionSelect.addClass("timeline-wrapper-info");
+        //     }
+        //     $("#" + $(this).attr("version")).removeClass("timeline-wrapper-info");
+        //     $("#" + $(this).attr("version")).addClass("timeline-wrapper-primary");
+        //     versionSelect = $("#" + $(this).attr("version"));
+        // });
+
+        // $(".timeline-heading h6:first").trigger("click");
+
+        $(".timeline-panel").click(function () {
+            clearToast();
+            var srcTarget = "version?project=" + $(this).find("h6").attr("project") + "&version=" + $(this).find("h6").attr("version") + "&projectName=" + $(this).find("h6").attr("project-name");
+                $("#main-frame").attr("src", srcTarget);
+                if (versionSelect) {
+                    versionSelect.removeClass("timeline-wrapper-primary");
+                    versionSelect.addClass("timeline-wrapper-info");
+                }
+                $("#pv" + $(this).find("h6").attr("pv-id")).removeClass("timeline-wrapper-info");
+                $("#pv" + $(this).find("h6").attr("pv-id")).addClass("timeline-wrapper-primary");
+                versionSelect = $("#pv" + $(this).find("h6").attr("pv-id"));
+        });
+
+        $(".timeline-panel:first").trigger("click");
+
+        $.contextMenu({
+            selector: '#time-line',
+            callback: function (key, options) {
+                clearToast();
+                if(key == "delete") {
+                    swal("你确定要删除当前版本吗？", {
+                        content: {
+                            element: "input",
+                            attributes: {
+                                placeholder: "请输入要删除的版本号",
+                                // type: "password",
+                                class: 'form-control'
+                            },
+                        },
+                        buttons: ["取消", "确认"]
+                    }).then(function(res){
+                        if(res){
+                            if(res === versionSelect.find("h6").attr("version")){
+                                $.showSuccessToast("正在删除中,请稍等...");
+                                $.ajax({
+                                    type: "post",
+                                    url: "/project/deleteProjectVersion?project=" + versionSelect.find("h6").attr("project") + "&version=" + versionSelect.find("h6").attr("version"),
+                                    contentType: "application/json",
+                                    dataType: "json",
+                                    success: function(result){
+                                        if(result.code == 0){
+                                            window.location.reload();
+                                        }
+                                    },
+                                    error: function(data){
+
+                                    }
+                                });
+                            }else{
+                                $.showDangerToast("你输入的版本号与当前版本号不一致，不允许删除.");
+                            }
+                        }else if(res===""){
+                            $.showWarningToast("请输入要删除的版本号以后，再确定删除.");
+                        }
+                    });
+                }
+            },
+            items: {
+                "delete": {
+                    name: "删除当前版本",
+                    icon: 'delete'
+                },
+                "sep1": "---------",
+                "quit": {
+                    name: "退出",
+                    icon: function () {
+                        return 'context-menu-icon context-menu-icon-quit';
+                    }
+                }
+            }
+        });
+    });
+</script>
+</body>
+
+</html>
+

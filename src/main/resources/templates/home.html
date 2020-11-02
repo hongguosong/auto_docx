@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head th:replace="@{commons/_common_header} :: common_header(~{::title},~{::link},~{::style})">
+    <title>用户首页</title>
+    <!-- plugin css for this page -->
+    <link rel="stylesheet" th:href="@{/vendors/jsgrid/jsgrid.min.css}">
+    <link rel="stylesheet" th:href="@{/vendors/jsgrid/jsgrid-theme.min.css}">
+    <link rel="stylesheet" th:href="@{/vendors/jquery-contextmenu/jquery.contextMenu.min.css}">
+    <link rel="stylesheet" th:href="@{/vendors/dropify/dropify.min.css}">
+
+    <style>
+        .dropzone .dz-preview + .dz-preview {
+            border-top: 0;
+            padding-top: 0;
+            border-left: 1px solid #e9e9e9;
+            padding-left: .5rem;
+        }
+
+        /*.dropzone .dz-preview .dz-success-mark, .dropzone .dz-preview .dz-image {*/
+            /*display: none;*/
+        /*}*/
+        .dropzone .dz-preview .dz-success-mark, .dropzone .dz-preview .dz-error-mark {
+            display: none;
+        }
+        .dropzone .dz-preview .dz-success-mark, .dropzone .dz-preview .dz-success-mark {
+            display: none;
+        }
+
+        .card .card-body {
+            padding: 1.75rem 1.75rem 0 1.75rem;
+        }
+
+        @media (min-width: 900px) {
+            #uploadModal .modal-dialog {
+                max-width: 800px;
+                margin: 30px auto;
+            }
+        }
+        .circle-loader {
+            width: 10px;
+            height: 10px;
+            margin-bottom: 5px;
+        }
+
+        .wizard > .steps > ul > li {
+            width: 33.3333%;
+        }
+
+        .wizard > .content {
+            height: 26em;
+        }
+    </style>
+</head>
+<body>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+    <div th:replace="@{commons/_navbar} :: navbar"/>
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_settings-panel.html -->
+        <div th:replace="@{commons/_settings-panel} :: settings-panel"/>
+        <!-- partial -->
+        <!-- partial:partials/_sidebar.html -->
+        <div th:replace="@{commons/_sidebar} :: sidebar"/>
+        <!-- partial -->
+        <div class="main-panel">
+            <div class="row">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">工程项目</h4>
+                        <!--<span class="card-description">Project List Description</span>-->
+                        <button id="add_project" class="float-right btn btn-primary" data-toggle='modal' data-target='#newProjectModal' onclick="addProject()">新增</button>
+                        <button class="float-right btn btn-info" onclick="refreshProject(event)" style="margin-right: 5px;">刷新</button>
+                        <div id="js-grid-static-main" class="pt-3"></div>
+                    </div>
+                </div>
+            </div>
+            <div th:replace="@{commons/_footer} :: footer"/>
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+<!-- container-scroller -->
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">上传代码</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="card">
+                <div class="card-body" style="padding: 28px;">
+                    <div class="row">
+                        <div class="col-12 mx-auto">
+                            <div class="row d-flex flex-nowrap" style="margin-left: 0; margin-bottom: 8px;">
+                                <span style="padding-top: 3px;">版本：</span>
+                                <input id="pro_v" onchange="change()"/>
+                            </div>
+                            <div class="d-flex flex-nowrap">
+                                <div id="analysisIng" style="display: none;width: 100px;">
+                                    <div class="circle-loader" style="display: inline-block;margin-right: 10px;"></div>
+                                    解析中...
+                                </div>
+                                <div id="analysisComplete" style="display: none;width: 100px;">
+                                    解析完成
+                                </div>
+                                <div id="function-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%;height:16px;display: inline-block;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="d-flex align-items-center"
+                                 id="function-dropzone" style="height: 140px;width: 100%;overflow: auto;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--<div class="modal-footer">-->
+                <!---->
+            <!--</div>-->
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="height: 850px">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">型号函数关系</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12 mx-auto">
+                            <ul class="nav nav-pills nav-pills-custom" id="pills-tab-custom" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="pills-home-tab-custom" data-toggle="pill"
+                                       href="#pills-health" role="tab" aria-controls="pills-home" aria-selected="true">
+                                        型号函数表
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="pills-profile-tab-custom" data-toggle="pill"
+                                       href="#pills-career" role="tab" aria-controls="pills-profile"
+                                       aria-selected="false">
+                                        型号函数图
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="tab-content tab-content-custom-pill" id="pills-tabContent-custom">
+                                <div class="tab-pane fade show active" id="pills-health" role="tabpanel"
+                                     aria-labelledby="pills-home-tab-custom">
+                                    <div class="table-responsive" style="height: 480px">
+                                        <table class="table table-striped table-hover" id="functionTable">
+                                            <thead>
+                                            <tr>
+                                                <th style="width: 15%">
+                                                    型号
+                                                </th>
+                                                <th style="width: 15%">
+                                                    提交者
+                                                </th>
+                                                <th style="width: 20%">
+                                                    函数名
+                                                </th>
+                                                <th style="width: 20%">
+                                                    包名.函数名
+                                                </th>
+                                                <th style="width: 10%">
+                                                    版本
+                                                </th>
+                                                <th style="width: 10%">
+                                                    录入日期
+                                                </th>
+                                                <th style="width: 10%">
+                                                    更新日期
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="tbData">
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <!-- 分页 -->
+                                    <div class="page">
+                                        <ul class="pagination" id="pagination"></ul>
+                                    </div>
+                                    <div class="float-right">
+                                        <a class="btn btn-primary btn-icon-text" id="exportExcel">
+                                            导出
+                                            <i class="mdi mdi-chart-bar"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="pills-career" role="tabpanel"
+                                     aria-labelledby="pills-profile-tab-custom">
+                                    <div id="allFunctionsChart" style="height: 531.5px;width: 1000px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--<div class="modal-footer">-->
+
+            <!--</div>-->
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="newProjectModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: 1000px">
+        <div class="modal-content" style="width: 1000px; height: 600px">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newProjectLabel">新建项目</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="card">
+                <div class="card-body" style="padding: 28px;">
+                    <div class="row">
+                        <div class="col-12 mx-auto">
+                            <form id="project-add-form" action="#">
+                                <div id="wizard">
+                                    <h3>项目</h3>
+                                    <section>
+                                        <h3>项目</h3>
+                                        <div class="form-group" style="display: none;">
+                                            <label>id</label>
+                                            <input type="text" id="projectId" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>型号名称</label>
+                                            <input type="text" id="name" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>型号描述</label>
+                                            <textarea type="text" id="description" class="form-control" rows="6"></textarea>
+                                        </div>
+                                    </section>
+                                    <h3>Git相关</h3>
+                                    <section>
+                                        <h3>Git相关</h3>
+                                        <div class="form-group">
+                                            <label>Git地址</label>
+                                            <input type="url" id="gitAddress" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>用户名</label>
+                                            <input type="text" id="gitName" name="gitName" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>密码</label>
+                                            <input type="password" id="gitPassword" name="gitPassword" class="form-control">
+                                        </div>
+                                    </section>
+                                    <h3>完成</h3>
+                                    <section>
+                                        <h3>完成</h3>
+                                        <div class="form-group">
+                                            <label>创建人</label>
+                                            <input class="form-control" id="createPerson" th:value="${username}" type="text" disabled>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>创建时间</label>
+                                            <input class="form-control" id="createTime" type="text" disabled>
+                                        </div>
+                                    </section>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--<div class="modal-footer">-->
+            <!---->
+            <!--</div>-->
+        </div>
+    </div>
+</div>
+
+<div th:replace="@{commons/_common_foot_js} :: footjs"></div>
+
+<script th:src="@{/vendors/dropzone/dropzone.js}"></script>
+<script th:src="@{/vendors/jsgrid/jsgrid.min.js}"></script>
+<!-- End plugin js for this page -->
+<!-- Custom js for this page-->
+<script th:src="@{/myjs/js-grid.js}"></script>
+<script th:src="@{/myjs/db.js}"></script>
+<script th:src="@{/myjs/dropzone-handle.js}"></script>
+
+<script th:src="@{/vendors/jquery-contextmenu/jquery.contextMenu.min.js}"></script>
+<script th:src="@{/vendors/dropzone/dropzone.js}"></script>
+<script th:src="@{/myjs/context-menu.js}"></script>
+<script th:src="@{/vendors/echarts/echarts.js}"></script>
+<script th:src="@{/vendors/sweetalert/sweetalert.min.js}"></script>
+<script th:src="@{/vendors/twbs-pagination/jquery.twbsPagination.min.js}"></script>
+
+<script th:src="@{/vendors/jquery-steps/jquery.steps.min.js}"></script>
+<script>
+    function clearToast() {
+        $(".jq-toast-wrap .jq-icon-warning").css("display", "none");
+        $(".jq-toast-wrap .jq-icon-success").css("display", "none");
+        $(".jq-toast-wrap .jq-icon-error").css("display", "none");
+    }
+    function openVersion(projectId, projectName) {
+        window.open("/projectVersion?projectId=" + projectId + "&projectName=" + projectName);
+    }
+
+    function getData(xFunctionArr, initFunctionArr, xSpaces, yCount, xFunctionArrs){
+        // console.log(xFunctionArr);
+        //递归终止条件
+        if (xFunctionArr.length === 0){
+            return {xSpaces: xSpaces, yCount: yCount, xFunctionArrs: xFunctionArrs};
+        }
+        //层数
+        yCount++;
+        //按层获取所有层节点
+        xFunctionArrs.push(xFunctionArr);
+        //获取每层节点间隔
+        xSpaces.push(1000/(xFunctionArr.length + 1));
+        //临时存放每层节点
+        var xFunctionTempArr = [];
+
+        //获取每层节点
+        for (var i = 0; i < xFunctionArr.length; i++){
+            for (var j = 0; j < initFunctionArr.length; j++){
+                if (xFunctionArr[i].id === initFunctionArr[j].parentId){
+                    //两种显示方式：
+                    // 一：
+                    // var flag = true;
+                    //
+                    // if (!initFunctionArr[j].isChecked){
+                    //
+                    //     for (var k = 0; k < initFunctionArr.length; k++){
+                    //         if (k !== j && initFunctionArr[k].name === initFunctionArr[j].name && !initFunctionArr[k].isChecked){
+                    //             //存在一个节点名相同并且未检测的节点
+                    //             initFunctionArr[j].isChecked = true;
+                    //             flag = false;
+                    //             break;
+                    //         }
+                    //     }
+                    //     if (flag){
+                    //         xFunctionTempArr.push(initFunctionArr[j]);
+                    //     }
+                    // }
+
+                    //二：
+                    if (!initFunctionArr[j].isChecked){
+                        //name重复节点isChecked = true
+                        for (var k = 0; k < initFunctionArr.length; k++){
+                            if (initFunctionArr[k].name === initFunctionArr[j].name){
+                                initFunctionArr[k].isChecked = true;
+                            }
+                        }
+                        xFunctionTempArr.push(initFunctionArr[j]);
+                    }
+                }
+            }
+        }
+
+        xFunctionArr = xFunctionTempArr;
+
+        //递归
+        return getData(xFunctionArr, initFunctionArr, xSpaces, yCount, xFunctionArrs);
+    }
+
+    //获取关系links
+    function getLinks(xFunctionArr, initFunctionArr, links){
+        //递归终止条件
+        if (xFunctionArr.length === 0){
+            return links;
+        }
+        var xFunctionTempArr = [];
+        for (var i = 0; i < xFunctionArr.length; i++){
+            for (var j = 0; j < initFunctionArr.length; j++){
+                if (xFunctionArr[i].id === initFunctionArr[j].parentId){
+                    links.push({
+                        source: xFunctionArr[i].name,
+                        target: initFunctionArr[j].name
+                    });
+                    xFunctionTempArr.push(initFunctionArr[j]);
+                }
+            }
+        }
+
+        xFunctionArr = xFunctionTempArr;
+
+        //递归
+        return getLinks(xFunctionArr, initFunctionArr, links);
+    }
+
+    function openFunction(projectId, version, projectName) {
+        $("#exportExcel").attr("href", "/excel/exportGridAll?projectId="+projectId+"&version="+version);
+        // console.log(version);
+        var initFunctionArr = [];   //初始化项目包含的所有函数，初始数组中存放对象，对象中有四个字段：id,name,isChecked,parentId
+        var yCount = 0;   //层数
+        var xSpaces = [];   //所有层的节点间距
+        var xFunctionArr = [];   //每一层节点
+        var xFunctionArrs = [];   //按层获取所有层节点
+        var links = [];   //eChart links
+        var data = [];  //eChart data
+
+        //分页
+        var totalPages =1;
+        var pageSize = 15;
+
+        //初始化table
+        $("#tbData").empty();
+
+        //初始化分页
+        $('#pagination').empty();
+        $('#pagination').removeData("twbs-pagination");
+        $('#pagination').unbind('page');
+
+        //初始化echart
+        var allFunctionsChart = echarts.init(document.getElementById('allFunctionsChart'));
+
+        //加载table
+        $.ajax({
+            url: "/selectFunctionsByProjectId",
+            type: "post",
+            data: {
+                projectId: projectId,
+                projectVersion: version
+            },
+            async:false,
+            success: function (data) {
+                for(var i = 0; i < data.length; i++){
+                    //初始化所有节点
+                    // initFunctionArr.push({id: data[i].id, name: data[i].name, isChecked: false, parentId: data[i].parentId});
+
+                    if (data.length > 0){
+                        if (data.length % pageSize != 0){
+                            totalPages = data.length / pageSize + 1;
+                        } else {
+                            totalPages = data.length / pageSize;
+                        }
+                    }
+                }
+            }
+        });
+
+        //初始化所有节点
+        $.ajax({
+           url: "/getFuncCallByProAndV",
+           type: "post",
+           data: {
+               projectId: projectId,
+               projectVersion: version
+           },
+           async: false,
+           success: function (data) {
+               for (var i = 0; i < data.length; i++){
+                   //初始化所有节点
+                   initFunctionArr.push({id: data[i].id, name: data[i].name, isChecked: false, parentId: data[i].calledParentId});
+               }
+           }
+        });
+
+        //分页
+        $("#pagination").twbsPagination({
+            totalPages: totalPages, //总页数
+            startPage: 1,
+            visiblePages: 5,  //显示的页数
+            first:'首页',
+            last:'末页',
+            prev:'上一页',
+            next:'下一页',
+            onPageClick:function (event,page) {
+                $.ajax({
+                    url: "/getFuncByProIdPagination",
+                    type: "post",
+                    data: {
+                        projectId: projectId,
+                        pageSize: pageSize,
+                        pageIndex: page
+                    },
+                    success: function (data) {
+                        //初始化table
+                        $("#tbData").empty();
+                        for(var i = 0; i < data.length; i++) {
+                            //加载 型号函数表
+                            var $trTemp = $("<tr></tr>");
+                            $trTemp.append("<td>" + projectName + "</td>");
+                            $trTemp.append("<td>" + data[i].createPerson + "</td>");
+                            $trTemp.append("<td>" + data[i].name + "</td>");
+                            $trTemp.append("<td>" + data[i].longName + "</td>");
+                            $trTemp.append("<td>" + data[i].version + "</td>");
+                            $trTemp.append("<td>" + data[i].createTime + "</td>");
+                            $trTemp.append("<td>" + data[i].updateTime + "</td>");
+                            $trTemp.appendTo("#functionTable");
+                        }
+                    }
+                })
+            }
+        });
+
+        for (var i = 0; i < initFunctionArr.length; i++){
+            //获取根节点
+            if (initFunctionArr[i].parentId === 0){
+                initFunctionArr[i].isChecked = true;
+                xFunctionArr.push(initFunctionArr[i]);
+                break;
+            }
+        }
+
+        //递归
+        var eChartObject = getData(xFunctionArr, initFunctionArr, xSpaces, yCount, xFunctionArrs);
+
+        var eChartLinks = getLinks(xFunctionArr, initFunctionArr, links);
+        //加载eChart data
+        for (var j = 0; j < eChartObject.xFunctionArrs.length; j++){
+            for (var k = 0; k < eChartObject.xFunctionArrs[j].length; k++){
+                data.push({name: eChartObject.xFunctionArrs[j][k].name, x: eChartObject.xSpaces[j]*(k+1), y: 531/(eChartObject.yCount+1)*(j+1)});
+            }
+        }
+
+        //设置echart相关数据
+        var allFunctionsOption = {
+            title: {
+                text: projectName + '全函数关系图'
+            },
+            tooltip: {},
+            //数据更新动画的时长。
+            animationDurationUpdate: 1500,
+            //数据更新动画的缓动效果。
+            animationEasingUpdate: 'quinticInOut',
+            series: [
+                {
+                    type: 'graph',
+                    layout: 'none',
+                    symbol: 'circle',
+                    //节点大小
+                    symbolSize: [60, 60],
+                    //roam: true,
+                    //节点文字是否显示
+                    label: {
+                        normal: {
+                            show: true,
+                            backgroundColor: ''
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            shadowColor: 'rgba(0,255,255,0.95)',
+                            shadowBlur: 5,
+                            borderRadius: 5
+                        }
+                    },
+                    //指向箭头
+                    edgeSymbol: ['circle', 'arrow'],
+                    //edgeSymbolSize: [1, 10],
+                    //连接线文字大小
+                    edgeLabel: {
+                        normal: {
+                            textStyle: {
+                                fontSize: 20
+                            }
+                        }
+                    },
+                    data: data,
+                    links: eChartLinks,
+                    lineStyle: {
+                        normal: {
+                            opacity: 0.9,
+                            width: 2,
+                            curveness: 0
+                        }
+                    }
+                }
+            ]
+        };
+        //加载echart
+        allFunctionsChart.setOption(allFunctionsOption);
+
+        $('#exampleModal').modal('show');
+    }
+
+    var projectMode = "add";
+    var username;
+    function addProject() {
+        projectMode = "add";
+        $("#name").attr("disabled", false);
+        $("#description").attr("disabled", false);
+        $("#gitAddress").attr("disabled", false);
+
+        $("#name").attr("value", "");
+        $("#description").attr("value", "");
+        $("#description").empty();
+        $("#gitAddress").attr("value", "");
+        $("#gitName").attr("value", "");
+        $("#gitPassword").attr("value", "");
+        $("#createPerson").attr("value", username);
+        $("#createTime").attr("value", now);
+    }
+
+    function openProjectModal(projectId,name,description,gitAddress,gitName,gitPassword,projectCreatePerson,projectCreateTime) {
+        projectMode = "edit";
+        $("#name").attr("disabled", true);
+        $("#description").attr("disabled", true);
+        $("#gitAddress").attr("disabled", true);
+        if(projectCreateTime.length >= 10){
+            projectCreateTime = projectCreateTime.substring(0,10);
+        }
+        if(projectMode == "edit"){
+            $("#projectId").attr("value", projectId);
+            $("#name").attr("value", name);
+            // $("#description").attr("value", description);
+            $("#description").empty();
+            $("#description").append(description);
+            $("#gitAddress").attr("value", gitAddress);
+            $("#gitName").attr("value", gitName);
+            $("#gitPassword").attr("value", gitPassword);
+            $("#createPerson").attr("value", projectCreatePerson);
+            $("#createTime").attr("value", projectCreateTime);
+        }
+    }
+
+    var projectId = 0;
+    var projectName = "";
+    functionDropzone = null;
+
+    var form = $("#project-add-form");
+    var now = new Date().Format("yyyy-MM-dd");
+    $("#createTime").attr("value", now);
+    $(document).ready(function () {
+        username = '[[${username}]]';
+        $("#js-grid-static-main").jsGrid({
+            height: "700px",
+            width: "100%",
+            sorting: true,
+            paging: true,
+            pageSize: 20,
+            pageButtonCount: 5,
+            autoload: true,
+            pageLoading: true,
+            confirmDeleting: false,
+            // deleteConfirm: "删除项目，同时会删除该项目下未被其他项目引用的函数，你确定要删除吗？",
+            pagerFormat: "{first} {prev} {pages} {next} {last}",
+            pagePrevText: "上一页",
+            pageNextText: "下一页",
+            pageFirstText: "首页",
+            pageLastText: "尾页",
+            controller: {
+                loadData: function (filter) {
+                    filter.pageIndex = filter.pageIndex - 1;
+                    return $.ajax({
+                        type: "post",
+                        url: "/project/selectProWidthLastVer",
+                        data: JSON.stringify(filter),
+                        contentType: "application/json",
+                        dataType: "json"
+                    });
+                },
+                deleteItem: function (deletingClient) {
+                    clearToast();
+                    swal("删除项目，同时会删除该项目下未被其他项目引用的函数，你确定要删除吗？", {
+                        content: {
+                            element: "input",
+                            attributes: {
+                                placeholder: "请输入要删除的型号名称",
+                                // type: "password",
+                                class: 'form-control'
+                            },
+                        },
+                        buttons: ["取消", "确认"]
+                    }).then(function(res){
+                        if(res){
+                            if(res === deletingClient.name){
+                                $.showSuccessToast("正在删除中,请稍等...");
+                                return $.ajax({
+                                    type: "post",
+                                    url: "/project/deleteProject",
+                                    data: JSON.stringify(deletingClient),
+                                    contentType: "application/json",
+                                    dataType: "json",
+                                    success: function (data) {
+                                        clearToast();
+                                        $.showSuccessToast("删除项目成功.");
+                                        $("#js-grid-static-main").jsGrid("render");
+                                    }
+                                })
+                            }else{
+                                $.showDangerToast("你输入的型号名称与当前所选型号名称不一致，不允许删除.");
+                            }
+                        }else if(res===""){
+                            $.showWarningToast("请输入要删除的型号名称以后，再确定删除.");
+                        }
+                    });
+                }
+            },
+
+            fields: [
+                {
+                    name: "id",
+                    title: '标识',
+                    type: "text",
+                    width: 50,
+                    visible: false
+                },
+                {
+                    name: "name",
+                    title: '型号名称',
+                    type: "text",
+                    width: 100
+                },
+                {
+                    name: "description",
+                    title: '描述',
+                    type: "text",
+                    width: 140
+                },
+                {
+                    name: "version",
+                    title: '最新版本',
+                    type: "text",
+                    width: 150,
+                    itemTemplate: function (value, item) {
+                        //<div class="badge badge-info">Info</div>
+
+                        var className = "badge-info";
+                        if (item.status == 1) {
+                            className = "badge-warning"
+                        }
+                        else if (item.status == 2) {
+                            className = "badge-danger"
+                        }
+                        return $("<div>").addClass("badge").addClass(className).append(value)
+                    }
+                },
+                {
+                    name: "gitAddress",
+                    title: '',
+                    type: "text",
+                    width: 40,
+                    visible: false
+                },
+                {
+                    name: "gitName",
+                    title: '',
+                    type: "text",
+                    width: 40,
+                    visible: false
+                },
+                {
+                    name: "gitPassword",
+                    title: '',
+                    type: "text",
+                    width: 40,
+                    visible: false
+                },
+                {
+                    name: "projectCreatePerson",
+                    title: '',
+                    type: "text",
+                    width: 40,
+                    visible: false
+                },
+                {
+                    name: "projectCreateTime",
+                    title: '',
+                    type: "text",
+                    width: 40,
+                    visible: false
+                },
+                {
+                    name: "id",
+                    title: "版本历史",
+                    width: 50,
+                    itemTemplate: function (value, item) {
+                        // <button type="button" class="btn btn-light">Light</button>
+                        return $("<button>").attr("onclick", "openVersion(" + value + ",'"+ item.name + "')").addClass("btn btn-success").append("版本历史")
+                    }
+                },
+                {
+                    name: "id",
+                    title: "内部函数",
+                    width: 50,
+                    itemTemplate: function (value, item) {
+                        // <button type="button" class="btn btn-light">Light</button>
+                        return $("<button>").attr("onclick", "openFunction(" + value + ",'"+ item.version + "','" + item.name + "')").addClass("btn btn-light").append("内部函数")
+                    }
+                },
+                {
+                    name: "id",
+                    title: "上传代码",
+                    width: 50,
+                    itemTemplate: function (value, item) {
+                        // <button type="button" class="btn btn-light">Light</button>
+                        return $("<button>").attr("onclick", "openUploadModal(" + value + ",'"+ item.version + "','" + item.name + "')").addClass("btn btn-light").append("上传代码")
+                    }
+                },
+                {
+                    name: "id",
+                    title: "查看",
+                    width: 30,
+                    itemTemplate: function (value, item) {
+                        // <button type="button" class="btn btn-light">Light</button>
+                        return $("<button>").attr("data-toggle", "modal").attr("data-target", "#newProjectModal")
+                            .attr("onclick", "openProjectModal('"+item.id+"','"+item.name + "','"+ item.description + "','" + item.gitAddress + "','" + item.gitName + "','" + item.gitPassword + "','" + item.projectCreatePerson + "','" + item.projectCreateTime + "')").addClass("btn btn-light").append("编辑");
+                    }
+                },
+                {
+                    type: "control",
+                    width: 30,
+                    editButton: false
+                }
+            ]
+        });
+
+        $("#newProjectModal").on('show.bs.modal', function (event) {
+            // document.getElementById("project-add-form").reset();
+            var gitName = $("#gitName").val();
+            var gitPassword = $("#gitPassword").val();
+            $("#wizard").steps({
+                headerTag: "h3",
+                bodyTag: "section",
+                transitionEffect: "slideLeft",
+                autoFocus: true,
+                onFinished: function (event, currentIndex) {
+                    debugger;
+                    var projectData = {
+                        id: $("#projectId").val(),
+                        name: $("#name").val(),
+                        description: $("#description").val(),
+                        gitAddress: $("#gitAddress").val(),
+                        gitName: $("#gitName").val(),
+                        gitPassword: $("#gitPassword").val(),
+                        createPerson: $("#createPerson").val(),
+                        createTime: now
+                    };
+                    if(!projectData.name){
+                        $.toast({
+                            // heading: 'Danger',
+                            text: '请输入项目名称.',
+                            showHideTransition: 'slide',
+                            icon: 'error',
+                            loaderBg: '#f2a654',
+                            position: 'top-right'
+                        });
+                        return;
+                    }
+                    if(!projectData.gitAddress){
+                        $.toast({
+                            // heading: 'Danger',
+                            text: '请输入git地址.',
+                            showHideTransition: 'slide',
+                            icon: 'error',
+                            loaderBg: '#f2a654',
+                            position: 'top-right'
+                        });
+                        return;
+                    }else if(projectData.gitAddress.substr(0,4) != "http"){
+                        $.toast({
+                            // heading: 'Danger',
+                            text: '请输入以"http"开头的git地址.',
+                            showHideTransition: 'slide',
+                            icon: 'error',
+                            loaderBg: '#f2a654',
+                            position: 'top-right'
+                        });
+                        return;
+                    }
+                    if(!projectData.gitName){
+                        $.toast({
+                            // heading: 'Danger',
+                            text: '请输入git账户名称.',
+                            showHideTransition: 'slide',
+                            icon: 'error',
+                            loaderBg: '#f2a654',
+                            position: 'top-right'
+                        });
+                        return;
+                    }
+                    if(!projectData.gitPassword){
+                        $.toast({
+                            // heading: 'Danger',
+                            text: '请输入git账户密码.',
+                            showHideTransition: 'slide',
+                            icon: 'error',
+                            loaderBg: '#f2a654',
+                            position: 'top-right'
+                        });
+                        return;
+                    }
+                    if(projectMode == "add"){
+                        $.ajax({
+                            type: "post",
+                            url: "/project/add",
+                            data: JSON.stringify(projectData),
+                            dataType: "json",
+                            contentType: "application/json",
+                            success: function (result) {
+                                if(result.code == 0){
+                                    $.showSuccessToast("", "添加项目成功.");
+                                    $("#newProjectModal").modal("hide");
+                                    $("#js-grid-static-main").jsGrid("reset");
+                                }
+                            },
+                            error: function (data) {
+
+                            }
+                        });
+                    }else if(projectMode == "edit"){
+                        if(gitName == projectData.gitName && gitPassword == projectData.gitPassword){
+                            $("#newProjectModal").modal("hide");
+                        } else{
+                            $.ajax({
+                                type: "post",
+                                url: "/project/update",
+                                data: JSON.stringify(projectData),
+                                dataType: "json",
+                                contentType: "application/json",
+                                success: function (result) {
+                                    if(result.code == 0){
+                                        $.showSuccessToast("", "修改成功.");
+                                        $("#newProjectModal").modal("hide");
+                                        $("#js-grid-static-main").jsGrid("render");
+                                    }
+                                },
+                                error: function (data) {
+
+                                }
+                            });
+                        }
+                    }
+                },
+                labels: {
+                    finish: "完成",
+                    next: "下一步",
+                    previous: "上一步"
+                }
+            });
+        });
+        $("#newProjectModal").on("hidden.bs.modal", function() {
+            $("#wizard").steps("destroy");
+        });
+
+        $("#function-dropzone").on("click", function(event) {
+            if($("#pro_v").val() == ""){
+                $.showWarningToast("请先输入版本号.");
+                return;
+            }
+        });
+    });
+
+    function refreshProject(event){
+        event.preventDefault();//阻止默认事件
+        event.stopPropagation();//阻止冒泡
+        $("#js-grid-static-main").jsGrid("render");
+    }
+
+    function openUploadModal(id, version,name) {
+        projectId = id;
+        projectName = name;
+        $("#pro_v").val("");
+        Dropzone.autoDiscover = false;
+        $("#function-dropzone").addClass("dropzone");
+        $('#uploadModal').modal('show');
+    }
+
+    function change() {
+        var verString = $("#pro_v").val();
+        if(functionDropzone || verString == ""){
+            functionDropzone.destroy();
+            $("#analysisIng").css("display", "none");
+            $("#analysisComplete").css("display", "none");
+            progressChange(0);
+        }
+        if(verString != ""){
+            var res = true;
+            $.ajax({
+                type: "POST",
+                url: "/file-upload/checkVersion?projectId=" + projectId + "&version="+verString,
+                async: false,
+                success: function (result) {
+                    if(result.length > 0){
+                        $.showWarningToast("版本号重复.");
+                        res = false;
+                    }
+                }
+            });
+            if(res == false){
+                return;
+            }
+            functionDropzone = new Dropzone("#function-dropzone", {
+                url: "/file-upload/function?projectId=" + projectId + "&projectName=" + projectName + "&version="+verString,
+                // uploadMultiple: false,
+                method: "post",  //也可用put
+                paramName: "file", //默认为file
+                maxFiles: 1,//一次性上传的文件数量上限
+                maxFilesize: 200, //MB
+                acceptedFiles: ".rar", //上传的类型
+                timeout: 180000,
+                // previewsContainer: "#adds", //显示的容器
+                parallelUploads: 10,
+                uploadMultiple: true,
+                dictDefaultMessage: '拖动文件至此或者点击上传', // 设置默认的提示语句
+                dictMaxFilesExceeded: "您最多只能上传1个文件！",
+                dictResponseError: '文件上传失败!',
+                dictInvalidFileType: "你不能上传该类型文件,文件类型只能是*.rar。",
+                dictFallbackMessage: "浏览器不受支持",
+                dictFileTooBig: "文件过大上传文件最大支持.",
+                // previewTemplate: document.querySelector("#preview-template").innerHTML,//设置显示模板
+                previewTemplate: "<div class=\"dz-preview dz-file-preview\" style='display: inline-block'>\n  <div class=\"dz-image\"><img data-dz-thumbnail /></div>\n  <div class=\"dz-details\">\n    <div class=\"dz-size\"><span data-dz-size></span></div>\n    <div class=\"dz-filename\"><span data-dz-name></span></div>\n  </div>\n  <div class=\"dz-progress\"><span class=\"dz-upload\" data-dz-uploadprogress></span></div>\n  <div class=\"dz-error-message\"><span data-dz-errormessage></span></div>\n  <div class=\"dz-success-mark\">\n    <svg width=\"54px\" height=\"54px\" viewBox=\"0 0 54 54\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:sketch=\"http://www.bohemiancoding.com/sketch/ns\">\n      <title>Check</title>\n      <defs></defs>\n      <g id=\"Page-1\" stroke=\"none\" stroke-width=\"1\" fill=\"none\" fill-rule=\"evenodd\" sketch:type=\"MSPage\">\n        <path d=\"M23.5,31.8431458 L17.5852419,25.9283877 C16.0248253,24.3679711 13.4910294,24.366835 11.9289322,25.9289322 C10.3700136,27.4878508 10.3665912,30.0234455 11.9283877,31.5852419 L20.4147581,40.0716123 C20.5133999,40.1702541 20.6159315,40.2626649 20.7218615,40.3488435 C22.2835669,41.8725651 24.794234,41.8626202 26.3461564,40.3106978 L43.3106978,23.3461564 C44.8771021,21.7797521 44.8758057,19.2483887 43.3137085,17.6862915 C41.7547899,16.1273729 39.2176035,16.1255422 37.6538436,17.6893022 L23.5,31.8431458 Z M27,53 C41.3594035,53 53,41.3594035 53,27 C53,12.6405965 41.3594035,1 27,1 C12.6405965,1 1,12.6405965 1,27 C1,41.3594035 12.6405965,53 27,53 Z\" id=\"Oval-2\" stroke-opacity=\"0.198794158\" stroke=\"#747474\" fill-opacity=\"0.816519475\" fill=\"#FFFFFF\" sketch:type=\"MSShapeGroup\"></path>\n      </g>\n    </svg>\n  </div>\n  <div class=\"dz-error-mark\">\n    <svg width=\"54px\" height=\"54px\" viewBox=\"0 0 54 54\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:sketch=\"http://www.bohemiancoding.com/sketch/ns\">\n      <title>Error</title>\n      <defs></defs>\n      <g id=\"Page-1\" stroke=\"none\" stroke-width=\"1\" fill=\"none\" fill-rule=\"evenodd\" sketch:type=\"MSPage\">\n        <g id=\"Check-+-Oval-2\" sketch:type=\"MSLayerGroup\" stroke=\"#747474\" stroke-opacity=\"0.198794158\" fill=\"#FFFFFF\" fill-opacity=\"0.816519475\">\n          <path d=\"M32.6568542,29 L38.3106978,23.3461564 C39.8771021,21.7797521 39.8758057,19.2483887 38.3137085,17.6862915 C36.7547899,16.1273729 34.2176035,16.1255422 32.6538436,17.6893022 L27,23.3431458 L21.3461564,17.6893022 C19.7823965,16.1255422 17.2452101,16.1273729 15.6862915,17.6862915 C14.1241943,19.2483887 14.1228979,21.7797521 15.6893022,23.3461564 L21.3431458,29 L15.6893022,34.6538436 C14.1228979,36.2202479 14.1241943,38.7516113 15.6862915,40.3137085 C17.2452101,41.8726271 19.7823965,41.8744578 21.3461564,40.3106978 L27,34.6568542 L32.6538436,40.3106978 C34.2176035,41.8744578 36.7547899,41.8726271 38.3137085,40.3137085 C39.8758057,38.7516113 39.8771021,36.2202479 38.3106978,34.6538436 L32.6568542,29 Z M27,53 C41.3594035,53 53,41.3594035 53,27 C53,12.6405965 41.3594035,1 27,1 C12.6405965,1 1,12.6405965 1,27 C1,41.3594035 12.6405965,53 27,53 Z\" id=\"Oval-2\" sketch:type=\"MSShapeGroup\"></path>\n        </g>\n      </g>\n    </svg>\n  </div>\n</div>",
+                accept: function(file, done) {
+                    swal("你确定要上传文件 ["+file.name+"]吗？", {
+                        buttons: ["取消", "确认"]
+                    }).then(function(res){
+                        if(res){
+                            done();
+                        }else{
+                            done("文件被取消上传.");
+                        }
+                    });
+                },
+                init: function () {
+                    this.on("addedfile", function (file) {
+                        progressChange(0);
+                        //上传文件时触发的事件
+                        $("input[type='file']").each(function(i){
+                            $(this).attr("disabled", true);
+                        });
+                    });
+                    this.on("queuecomplete", function (file) {
+                        //上传队列中的所有文件完成后触发的方法
+                        $(".dz-hidden-input").attr("disabled",false);
+                        $("#analysisIng").css("display", "none");
+                        $("#analysisComplete").css("display", "inline-block");
+                        $("#js-grid-static-main").jsGrid("render");
+                    });
+                    this.on('totaluploadprogress', function (progress, byte, bytes) {
+                        //用 uploadProgress (0-100), totalBytes 和 totalBytesSent的总数调用. 此事件可以用于显示所有文件的总体上传进度.
+                        //console.log(parseInt(progress));
+                        progressChange(progress);
+                        $("input[type='file']").each(function(i){
+                            $(this).attr("disabled", true);
+                        });
+                    });
+                    this.on("removedfile", function (file) {
+                        //删除文件时触发的方法
+                    });
+                    this.on("success", function (file,result) {
+                        //文件已经成功上传，获得服务器返回信息作为第二个参数(这个时间又被称作finished)
+                        if(result.code == 16){
+                            $.showDangerToast(result.msg);
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    $('#uploadModal').on('shown.bs.modal', function (e) {
+        $("#analysisIng").css("display", "none");
+        $("#analysisComplete").css("display", "none");
+        progressChange(0);
+    });
+    $('#uploadModal').on('hidden.bs.modal', function () {
+        functionDropzone.destroy();
+    });
+    function progressChange(value) {
+        var tag = $("#function-progress");
+        var intValue = parseInt(value);
+        tag.css("width", intValue + "%");
+        tag.attr("aria-valuenow", parseInt(value));
+        tag.text(parseInt(value) + "%");
+        if(intValue == 100){
+            $("#analysisIng").css("display", "inline-block");
+            $("#analysisComplete").css("display", "none");
+        }
+    }
+
+    function exportGrid() {
+        $.ajax({
+            url: "/excel/exportGridAll?projectId="+projectId+"&version="+version,
+            type: "post",
+            success: function (data) {
+
+            }
+        })
+    }
+
+    // $.contextMenu({
+    //     selector: '#js-grid-static-main',
+    //     callback: function (key, options) {
+    //         if (key == "add") {
+    //             window.location = "/";
+    //         }
+    //     },
+    //     items: {
+    //         "add": {
+    //             name: "新增",
+    //             //icon: "add"
+    //             icon: function () {
+    //                 return 'context-menu-icon mdi mdi-application';
+    //             }
+    //         },
+    //         "search": {
+    //             name: "查看",
+    //             icon: function () {
+    //                 return 'context-menu-icon mdi mdi-arrange-bring-forward';
+    //             }
+    //         },
+    //         "modify": {
+    //             name: "修改",
+    //             icon: function () {
+    //                 return 'context-menu-icon mdi mdi-arrange-send-backward';
+    //             }
+    //         },
+    //         "sep1": "---------",
+    //         "quit": {
+    //             name: "退出",
+    //             icon: function () {
+    //                 return 'context-menu-icon context-menu-icon-quit';
+    //             }
+    //         }
+    //     }
+    // });
+
+    // $.contextMenu({
+    //     selector: '#functionTable',
+    //     callback: function (key, options) {
+    //
+    //     },
+    //     items: {
+    //         "add": {
+    //             name: "新增",
+    //             //icon: "add"
+    //             icon: function () {
+    //                 return 'context-menu-icon mdi mdi-application';
+    //             }
+    //         },
+    //         "search": {
+    //             name: "查看",
+    //             icon: function () {
+    //                 return 'context-menu-icon mdi mdi-arrange-bring-forward';
+    //             }
+    //         },
+    //         "modify": {
+    //             name: "修改",
+    //             icon: function () {
+    //                 return 'context-menu-icon mdi mdi-arrange-send-backward';
+    //             }
+    //         },
+    //         "sep1": "---------",
+    //         "quit": {
+    //             name: "退出",
+    //             icon: function () {
+    //                 return 'context-menu-icon context-menu-icon-quit';
+    //             }
+    //         }
+    //     }
+    // });
+
+</script>
+</body>
+
+</html>

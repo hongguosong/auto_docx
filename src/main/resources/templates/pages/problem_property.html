@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head th:replace="@{/commons/_common_header} :: common_header(~{::title},~{::link},~{::style})">
+    <title>问题单属性管理</title>
+
+    <link rel="stylesheet" th:href="@{/vendors/jsgrid/jsgrid.min.css}">
+    <link rel="stylesheet" th:href="@{/vendors/jsgrid/jsgrid-theme.min.css}">
+
+    <style>
+        @media (min-width: 900px) {
+            #funcProblemModal .modal-dialog {
+                max-width: 800px;
+                margin: 30px auto;
+            }
+        }
+
+        .jsgrid .jsgrid-table .jsgrid-filter-row input[type=text] {
+            height: 35px;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-check {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            margin-bottom: 0;
+        }
+
+        #funcProblemModal .modal-dialog .modal-content .modal-body {
+            padding: 5px 35px!important;
+        }
+
+        #funcProblemModal input[disabled], #funcProblemModal textarea[disabled] {
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+    <div th:replace="@{/commons/_navbar} :: navbar" />
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_settings-panel.html -->
+        <div th:replace="@{/commons/_settings-panel} :: settings-panel" />
+        <!-- partial -->
+        <!-- partial:partials/_sidebar.html -->
+        <div th:replace="@{/commons/_sidebar} :: sidebar" />
+        <!-- partial -->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="row grid-margin">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">问题单属性管理</h4>
+                                <!--<p class="card-description">A basic example of js-grid</p>-->
+                                <div class="text-right">
+                                    <button type="button" class="btn btn-primary" onclick="modalButton()">查看</button>
+                                </div>
+                                <div id="problem-property-info" class="pt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:replace="@{commons/_footer} :: footer" />
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+
+<div th:replace="@{/commons/_problem_modal} :: funcProblemModal"/>
+<div th:replace="@{/commons/_common_foot_js} :: footjs"></div>
+
+<script th:src="@{/vendors/jsgrid/jsgrid.min.js}"></script>
+<script th:src="@{/vendors/sweetalert/sweetalert.min.js}"></script>
+<script th:src="@{/myjs/db.js}"></script>
+<script th:src="@{/myjs/problem-modal.js}"></script>
+<script th:src="@{/js/jquery-ui.js}"></script>
+<script type="text/javascript">
+    var problemPropertyGrid;
+    var problemPropertyItem = null;
+    if ($("#problem-property-info").length) {
+        problemPropertyGrid = $("#problem-property-info").jsGrid({
+            height: "630px",
+            width: "100%",
+            // filtering: true,
+            editing: true,
+            inserting: true,
+            sorting: true,
+            paging: true,
+            autoload: true,
+            pageSize: 10,
+            pageButtonCount: 5,
+            confirmDeleting: false,
+            deleteConfirm: "是否删除该条记录?",
+            invalidMessage: "未输入有效数据!",
+            pagerFormat: "{first} {prev} {pages} {next} {last}",
+            pagePrevText: "上一页",
+            pageNextText: "下一页",
+            pageFirstText: "首页",
+            pageLastText: "尾页",
+            //data: db.role,
+            pageLoading: true,
+            controller: {
+                loadData: function(filter) {
+                    return $.ajax({
+                        type: "GET",
+                        url: "/problemProperty/getList",
+                        data: {pageIndex:filter.pageIndex-1, pageSize:filter.pageSize}
+                    });
+                },
+                insertItem: function(item) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/problemProperty/add",
+                        data: {item: JSON.stringify(item)},
+                        success: function(msg){
+                            if (msg === 1) {
+                                $("#problem-property-info").jsGrid("render");
+                            }
+                        }
+                    });
+                },
+                updateItem: function(item) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/problemProperty/update",
+                        data: {item: JSON.stringify(item)},
+                        success: function(msg){
+                            if (msg === 1) {
+                                $("#problem-property-info").jsGrid("render");
+                            }
+                        }
+                    });
+                },
+                deleteItem: function(item) {
+                    clearToast();
+                    swal("是否删除该条记录?", {
+                        buttons: ["取消", "确认"]
+                    }).then(function(res){
+                        if(res){
+                            $.ajax({
+                                type: "DELETE",
+                                url: "/problemProperty/delete",
+                                data: {id: item.id},
+                                success: function(msg){
+                                    if (msg === 1) {
+                                        $("#problem-property-info").jsGrid("render");
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            },
+            fields: [
+                {
+                    title: "标识",
+                    name: "id",
+                    type: "number",
+                    visible: false
+                },
+                {
+                    title: "字段名称",
+                    name: "name",
+                    type: "text",
+                    align: "center",
+                    // validate: {
+                    //     validator: "required",
+                    //     message: "字段名称必填"
+                    // }
+                    validate: [{
+                            validator: "required",
+                            message: "字段名称必填"
+                        },{
+                            validator: function(value, item) {
+                                var pattern = new RegExp("^[a-zA-Z]+$");
+                                return pattern.test(value);
+                            },
+                            message: "字段名称必须为英文字符"
+                        },{
+                            validator: function(value, item) {
+                                var pattern = ["funcName","testCaseId","errorType","errorLevel","testEnvironment",
+                                "testCaseName","testInput","problemDescription","suggest","solution","closedCycleResult",
+                                "testPerson","testTime","remark","other","id","projectId","projectVersion","procedureId"];
+                                for(var i=0; i<pattern.length; i++){
+                                    if(value === pattern[i]){
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            },
+                            message: "已存在该字段名称,不能与以下关键字重复'funcName','testCaseId','errorType','errorLevel','testEnvironment'," +
+                            "'testCaseName','testInput','problemDescription','suggest','solution','closedCycleResult','testPerson'," +
+                            "'testTime','remark','other','id','projectId','projectVersion','procedureId'"
+                        },{
+                            validator: function(value, item) {
+                                console.log(problemPropertyGrid);
+                                var data = problemPropertyGrid.jsGrid("option", "data");
+                                for(var i=0; i<data.length; i++){
+                                    if(value === data[i].name && (problemPropertyItem === null ? true : problemPropertyItem.id !== data[i].id)){
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            },
+                            message: "已存在该字段名称,不能重复"
+                        }
+                    ]
+                },
+                {
+                    title: "标签名称",
+                    name: "label",
+                    type: "text",
+                    align: "center",
+                    validate: {
+                        validator: "required",
+                        message: "标签名称必填"
+                    }
+                },
+                {
+                    title: "问题单属性名称",
+                    name: "propertyName",
+                    type: "text",
+                    align: "center",
+                    validate: {
+                        validator: "required",
+                        message: "问题单属性名称必填"
+                    }
+                },
+                {
+                    type: "control"
+                }
+            ],
+            onItemInserting: function (args) {
+                problemPropertyItem = null;
+            },
+            onItemEditing: function (args) {
+                clearToast();
+                problemPropertyItem = args.item;
+            },
+            invalidNotify: function(args) { // 自定义验证弹出框
+                clearToast();
+                var messages = "";
+                $.map(args.errors, function(error) {
+                    messages += error.field.title + ": " + error.message + "<br/>";
+                });
+                $.showDangerToast("输入信息无效.",messages);
+            }
+        });
+    }
+    function modalButton() {
+        $.ajax({
+            type: "GET",
+            url: "/problemProperty/getAll",
+            success: function(result){
+                problemModal.other = result;
+            }
+        });
+        problemModal.edit = true;
+        $('#funcProblemModal').modal('show');
+    }
+    function clearToast() {
+        $(".jq-toast-wrap .jq-icon-warning").css("display", "none");
+        $(".jq-toast-wrap .jq-icon-success").css("display", "none");
+        $(".jq-toast-wrap .jq-icon-error").css("display", "none");
+    }
+    $(function(){
+        $(".modal-dialog").draggable();
+    });
+</script>
+</body>
+
+</html>

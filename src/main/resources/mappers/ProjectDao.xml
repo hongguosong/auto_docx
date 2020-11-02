@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.ProjectDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.ProjectEntity">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="git_address" jdbcType="VARCHAR" property="gitAddress" />
+    <result column="git_name" jdbcType="VARCHAR" property="gitName" />
+    <result column="git_password" jdbcType="VARCHAR" property="gitPassword" />
+    <result column="create_person" jdbcType="VARCHAR" property="createPerson" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="delete_id" jdbcType="INTEGER" property="deleteId" />
+  </resultMap>
+  <resultMap id="ProVerLastMap" type="com.example.demo.dto.ProjectVersionDto">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="git_address" jdbcType="VARCHAR" property="gitAddress" />
+    <result column="git_name" jdbcType="VARCHAR" property="gitName" />
+    <result column="git_password" jdbcType="VARCHAR" property="gitPassword" />
+    <result column="project_create_person" jdbcType="VARCHAR" property="projectCreatePerson" />
+    <result column="project_create_time" jdbcType="VARCHAR" property="projectCreateTime" />
+    <result column="git_password" jdbcType="VARCHAR" property="gitPassword" />
+    <result column="project_version" jdbcType="VARCHAR" property="version" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_project
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.entity.ProjectEntity">
+    <selectKey  keyProperty="id" order="AFTER" resultType="int">
+      select LAST_INSERT_ID()
+    </selectKey>
+    insert into sys_project (name, description,
+      git_address, git_name, git_password,
+      create_person, create_time)
+    values (#{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
+      #{gitAddress,jdbcType=VARCHAR}, #{gitName,jdbcType=VARCHAR}, #{gitPassword,jdbcType=VARCHAR},
+      #{createPerson,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.ProjectEntity">
+    update sys_project
+    set name = #{name,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      git_address = #{gitAddress,jdbcType=VARCHAR},
+      git_name = #{gitName,jdbcType=VARCHAR},
+      git_password = #{gitPassword,jdbcType=VARCHAR},
+      create_person = #{createPerson,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, name, description, git_address, git_name, git_password, create_person,
+    create_time, delete_id
+    from sys_project
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByGitAddress" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select id, name, description, git_address, git_name, git_password, create_person,
+    create_time, delete_id
+    from sys_project
+    where git_address = #{gitAddress,jdbcType=VARCHAR}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, name, description, git_address, git_name, git_password, create_person,
+    create_time, delete_id
+    from sys_project
+    where delete_id = 2
+  </select>
+<!--  <select id="selectProWidthLastVer" resultMap="ProVerLastMap">-->
+<!--    select p.id, p.name, p.description, v.project_version, v.create_time-->
+<!--    from sys_project p-->
+<!--    left join sys_project_version v on p.id = v.project_id-->
+<!--    where p.delete_id = 2-->
+<!--    order by p.id, v.create_time desc-->
+<!--  </select>-->
+
+  <select id="selectProWidthLastVer" resultMap="ProVerLastMap">
+    select p.id, p.name, p.description, p.git_address, p.git_name, p.git_password, p.create_person project_create_person, p.create_time project_create_time, v.project_version, v.create_time
+    from sys_project p
+    left join
+    ( select * from sys_project_version t1
+      where
+      t1.create_time = (select max(create_time) from sys_project_version t2 where t2.project_id = t1.project_id)) v
+    on p.id = v.project_id
+    where p.delete_id = 2 ORDER BY p.id DESC
+  </select>
+
+  <select id="selectProjectsByFunctionId" resultMap="BaseResultMap">
+    select spj.* from sys_project spj
+    inner join sys_project_procedure spp on spj.id = spp.project_id
+    inner join sys_procedure spd on spd.id = spp.procedure_id
+    where spd.id = #{functionId} and spj.delete_id = '2'
+    limit #{startNum}, #{pageSize}
+  </select>
+
+  <select id="selectProjectsCountByFunctionId" resultType="java.lang.Integer">
+    select count(*) from sys_project spj
+    inner join sys_project_procedure spp on spj.id = spp.project_id
+    inner join sys_procedure spd on spd.id = spp.procedure_id
+    where spd.id = #{functionId}
+  </select>
+
+  <update id="deleteProject">
+    update sys_project set delete_id = 1 where id = #{id}
+  </update>
+
+  <update id="updateProjectById" parameterType="com.example.demo.entity.ProjectEntity">
+    update sys_project set
+    git_name = #{gitName,jdbcType=VARCHAR},
+    git_password = #{gitPassword,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

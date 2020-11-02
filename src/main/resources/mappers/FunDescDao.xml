@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.FunDescDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.FunDescEntity">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="comment" jdbcType="VARCHAR" property="comment" />
+    <result column="var_description" jdbcType="VARCHAR" property="varDescription" />
+    <result column="input_description" jdbcType="VARCHAR" property="inputDescription" />
+    <result column="output_description" jdbcType="VARCHAR" property="outputDescription" />
+    <result column="procedure_id" jdbcType="INTEGER" property="procedureId" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_fun_desc
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.entity.FunDescEntity">
+    <selectKey  keyProperty="id" order="AFTER" resultType="int">
+      select LAST_INSERT_ID()
+    </selectKey>
+    insert into sys_fun_desc (name, comment,
+      var_description, input_description, output_description, 
+      procedure_id)
+    values (#{name,jdbcType=VARCHAR}, #{comment,jdbcType=VARCHAR},
+      #{varDescription,jdbcType=VARCHAR}, #{inputDescription,jdbcType=VARCHAR}, #{outputDescription,jdbcType=VARCHAR}, 
+      #{procedureId,jdbcType=INTEGER})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.FunDescEntity">
+    update sys_fun_desc
+    set name = #{name,jdbcType=VARCHAR},
+      comment = #{comment,jdbcType=VARCHAR},
+      var_description = #{varDescription,jdbcType=VARCHAR},
+      input_description = #{inputDescription,jdbcType=VARCHAR},
+      output_description = #{outputDescription,jdbcType=VARCHAR},
+      procedure_id = #{procedureId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, name, comment, var_description, input_description, output_description, 
+    procedure_id
+    from sys_fun_desc
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, name, comment, var_description, input_description, output_description, 
+    procedure_id
+    from sys_fun_desc
+  </select>
+  <select id="selectByProcedureId" resultMap="BaseResultMap">
+    select id, name, comment, var_description, input_description, output_description,procedure_id
+    from sys_fun_desc
+    where procedure_id = #{procedureId,jdbcType=INTEGER}
+  </select>
+  <select id="selecByName" resultMap="BaseResultMap">
+    select d.id, d.name, d.comment, d.var_description, d.input_description, d.output_description, d.procedure_id
+    from sys_fun_desc d
+    left join sys_procedure p on p.id = d.procedure_id
+    left join sys_project_procedure v on v.procedure_id = p.id
+    where (LOWER(p.long_name) = #{name,jdbcType=VARCHAR} ||
+      REPLACE(REPLACE(REPLACE(p.full_name, "(", "_"),")",""),",","_") = #{name,jdbcType=VARCHAR}) AND
+      v.project_id = #{project,jdbcType=INTEGER} AND
+      v.project_version = #{version,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByProjectIdAndVersion" resultMap="BaseResultMap">
+    select sfd.* from sys_project_procedure spp left join sys_procedure sp on sp.id = spp.procedure_id
+    left join sys_fun_desc sfd on sfd.procedure_id = sp.id
+    where  spp.project_id=#{project,jdbcType=INTEGER} and spp.project_version= #{version,jdbcType=VARCHAR};
+  </select>
+  <select id="selectByFullName" resultMap="BaseResultMap">
+    select sfd.* from sys_fun_desc sfd
+    inner join sys_procedure sp on sp.id = sfd.procedure_id
+    where sp.full_name = #{fullName,jdbcType=VARCHAR} order by sp.version desc
+  </select>
+</mapper>

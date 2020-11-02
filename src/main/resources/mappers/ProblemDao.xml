@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.ProblemDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.ProblemEntity">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="func_name" jdbcType="VARCHAR" property="funcName" />
+    <result column="test_case_id" jdbcType="VARCHAR" property="testCaseId" />
+    <result column="error_type" jdbcType="INTEGER" property="errorType" />
+    <result column="error_level" jdbcType="INTEGER" property="errorLevel" />
+    <result column="test_environment" jdbcType="VARCHAR" property="testEnvironment" />
+    <result column="test_case_name" jdbcType="VARCHAR" property="testCaseName" />
+    <result column="test_input" jdbcType="VARCHAR" property="testInput" />
+    <result column="problem_description" jdbcType="VARCHAR" property="problemDescription" />
+    <result column="suggest" jdbcType="VARCHAR" property="suggest" />
+    <result column="solution" jdbcType="VARCHAR" property="solution" />
+    <result column="closed_cycle_result" jdbcType="VARCHAR" property="closedCycleResult" />
+    <result column="test_person" jdbcType="VARCHAR" property="testPerson" />
+    <result column="test_time" jdbcType="VARCHAR" property="testTime" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="other" jdbcType="VARCHAR" property="other" />
+    <result column="project_id" jdbcType="INTEGER" property="projectId" />
+    <result column="project_version" jdbcType="VARCHAR" property="projectVersion" />
+    <result column="procedure_id" jdbcType="INTEGER" property="procedureId" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_problem
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.entity.ProblemEntity">
+    insert into sys_problem (id, func_name, test_case_id, 
+      error_type, error_level, test_environment, 
+      test_case_name, test_input, problem_description, 
+      suggest, solution, closed_cycle_result, 
+      test_person, test_time, remark, 
+      other, project_id, project_version, 
+      procedure_id)
+    values (#{id,jdbcType=INTEGER}, #{funcName,jdbcType=VARCHAR}, #{testCaseId,jdbcType=VARCHAR}, 
+      #{errorType,jdbcType=INTEGER}, #{errorLevel,jdbcType=INTEGER}, #{testEnvironment,jdbcType=VARCHAR}, 
+      #{testCaseName,jdbcType=VARCHAR}, #{testInput,jdbcType=VARCHAR}, #{problemDescription,jdbcType=VARCHAR}, 
+      #{suggest,jdbcType=VARCHAR}, #{solution,jdbcType=VARCHAR}, #{closedCycleResult,jdbcType=VARCHAR}, 
+      #{testPerson,jdbcType=VARCHAR}, #{testTime,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{other,jdbcType=VARCHAR}, #{projectId,jdbcType=INTEGER}, #{projectVersion,jdbcType=VARCHAR}, 
+      #{procedureId,jdbcType=INTEGER})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.ProblemEntity">
+    update sys_problem
+    set func_name = #{funcName,jdbcType=VARCHAR},
+      test_case_id = #{testCaseId,jdbcType=VARCHAR},
+      error_type = #{errorType,jdbcType=INTEGER},
+      error_level = #{errorLevel,jdbcType=INTEGER},
+      test_environment = #{testEnvironment,jdbcType=VARCHAR},
+      test_case_name = #{testCaseName,jdbcType=VARCHAR},
+      test_input = #{testInput,jdbcType=VARCHAR},
+      problem_description = #{problemDescription,jdbcType=VARCHAR},
+      suggest = #{suggest,jdbcType=VARCHAR},
+      solution = #{solution,jdbcType=VARCHAR},
+      closed_cycle_result = #{closedCycleResult,jdbcType=VARCHAR},
+      test_person = #{testPerson,jdbcType=VARCHAR},
+      test_time = #{testTime,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      other = #{other,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=INTEGER},
+      project_version = #{projectVersion,jdbcType=VARCHAR},
+      procedure_id = #{procedureId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, func_name, test_case_id, error_type, error_level, test_environment, test_case_name, 
+    test_input, problem_description, suggest, solution, closed_cycle_result, test_person, 
+    test_time, remark, other, project_id, project_version, procedure_id
+    from sys_problem
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, func_name, test_case_id, error_type, error_level, test_environment, test_case_name, 
+    test_input, problem_description, suggest, solution, closed_cycle_result, test_person, 
+    test_time, remark, other, project_id, project_version, procedure_id
+    from sys_problem
+  </select>
+  <select id="getByProcedureId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, func_name, test_case_id, error_type, error_level, test_environment, test_case_name,
+    test_input, problem_description, suggest, solution, closed_cycle_result, test_person,
+    test_time, remark, other, project_id, project_version, procedure_id
+    from sys_problem
+    where procedure_id = #{procedureId,jdbcType=INTEGER}
+  </select>
+  <select id="getByProcedureIdAndProjectAndVersion" resultMap="BaseResultMap">
+    select id, func_name, test_case_id, error_type, error_level, test_environment, test_case_name,
+    test_input, problem_description, suggest, solution, closed_cycle_result, test_person,
+    test_time, remark, other, project_id, project_version, procedure_id
+    from sys_problem
+    where procedure_id = #{procedureId,jdbcType=INTEGER} AND
+    project_id = #{projectId,jdbcType=INTEGER} AND
+    project_version = #{version,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByPage" resultMap="BaseResultMap">
+    select id, func_name, test_case_id, error_type, error_level, test_environment, test_case_name,
+    test_input, problem_description, suggest, solution, closed_cycle_result, test_person,
+    test_time, remark, other, project_id, project_version, procedure_id
+    from sys_problem
+    limit #{start},#{offset}
+  </select>
+  <select id="selectByNameAndProjectAndVersion" resultMap="BaseResultMap">
+    select p.id, p.func_name, p.test_case_id, p.error_type, p.error_level, p.test_environment, p.test_case_name,
+    p.test_input, p.problem_description, p.suggest, p.solution, p.closed_cycle_result, p.test_person,
+    p.test_time, p.remark, p.other, p.project_id, p.project_version, p.procedure_id
+    from sys_problem p
+    left join sys_procedure e on e.id = p.procedure_id
+    where p.project_id = #{project,jdbcType=INTEGER} and p.project_version = #{version,jdbcType=VARCHAR} and (LOWER(p.func_name) = #{name,jdbcType=VARCHAR} ||
+    REPLACE(REPLACE(REPLACE(e.full_name, "(", "_"),")",""),",","_") = #{name,jdbcType=VARCHAR})
+  </select>
+  <select id="selectByProjectAndVersion" resultMap="BaseResultMap">
+    select id, func_name, test_case_id, error_type, error_level, test_environment, test_case_name,
+    test_input, problem_description, suggest, solution, closed_cycle_result, test_person,
+    test_time, remark, other, project_id, project_version, procedure_id
+    from sys_problem
+    where project_id = #{project,jdbcType=INTEGER} and project_version = #{version,jdbcType=VARCHAR}
+  </select>
+</mapper>

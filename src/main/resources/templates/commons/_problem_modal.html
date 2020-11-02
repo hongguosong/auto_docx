@@ -1,0 +1,178 @@
+<!--draggable="true"-->
+<div class="modal fade" id="funcProblemModal" tabindex="-1" role="dialog" aria-labelledby="funcProblemModalLabel"
+     aria-hidden="true" th:fragment="funcProblemModal">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="funcProblemModalLabel">问题单</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <table class="table table-bordered" style="width: 100%;">
+                            <thead>
+                            <th colspan="4" class="text-center">单元测试问题单</th>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td style="width: 15%;">被测函数</td>
+                                <td style="width: 40%;">
+                                    <input style="width: 100%;height: 100%;border: 0;" v-model="funcName" disabled="true"/>
+                                </td>
+                                <td style="width: 15%;">用例标识</td>
+                                <td style="width: 30%;">
+                                    <input style="width: 100%;height: 100%;border: 0;" v-model="testCaseId" disabled="true"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>错误类型</td>
+                                <td colspan="3">
+                                    <div class="form-group" id="exampleInputError">
+                                        <div class="form-check" style="display: inline-block; margin-right: 5px;">
+                                            <label class="form-check-label">
+                                                <input type="checkbox" class="form-check-input" name="error" id="optionsError1" value="1" v-model="errorType" v-bind:disabled="edit">
+                                                逻辑分支问题
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                        <div class="form-check" style="display: inline-block; margin-right: 5px;">
+                                            <label class="form-check-label">
+                                                <input type="checkbox" class="form-check-input" name="error" id="optionsError2" value="2" v-model="errorType" v-bind:disabled="edit">
+                                                功能问题
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                        <div class="form-check" style="display: inline-block; margin-right: 5px;">
+                                            <label class="form-check-label">
+                                                <input type="checkbox" class="form-check-input" name="error" id="optionsError3" value="3" v-model="errorType" v-bind:disabled="edit">
+                                                边界问题
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                        <div class="form-check" style="display: inline-block; margin-right: 5px;">
+                                            <label class="form-check-label">
+                                                <input type="checkbox" class="form-check-input" name="error" id="optionsError4" value="4" v-model="errorType" v-bind:disabled="edit">
+                                                其他问题
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>问题级别</td>
+                                <td colspan="4">
+                                    <div class="form-group" id="exampleInputErrorLevel">
+                                        <div class="form-check" style="display: inline-block; margin-right: 5px;">
+                                            <label class="form-check-label">
+                                                <input type="radio" class="form-check-input" name="errorLevel" id="optionsErrorLevel1" value=1 v-model="errorLevel" v-bind:disabled="edit">
+                                                轻微
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                        <div class="form-check" style="display: inline-block; margin-right: 5px;">
+                                            <label class="form-check-label">
+                                                <input type="radio" class="form-check-input" name="errorLevel" id="optionsErrorLevel2" value=2 v-model="errorLevel" v-bind:disabled="edit">
+                                                一般
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                        <div class="form-check" style="display: inline-block; margin-right: 5px;">
+                                            <label class="form-check-label">
+                                                <input type="radio" class="form-check-input" name="errorLevel" id="optionsErrorLevel3" value=3 v-model="errorLevel" v-bind:disabled="edit">
+                                                严重
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 15%;">测试环境</td>
+                                <td style="width: 40%;">
+                                    <input style="width: 100%;height: 100%;border: 0;" v-model="environment" v-bind:disabled="edit"/>
+                                </td>
+                                <td style="width: 15%;">用例文件名</td>
+                                <td style="width: 30%;">
+                                    <input style="width: 100%;height: 100%;border: 0;" v-model="testCaseName" v-bind:disabled="edit"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>测试输入</td>
+                                <td colspan="3">
+                                    <textarea id="haha" style="min-height: 40px; width: 100%;border: 0;line-height: 18px;" v-model="testInput" v-bind:disabled="edit">
+
+                                    </textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>问题描述</td>
+                                <td colspan="3">
+                                    <textarea id="ty" style="min-height: 60px; width: 100%;border: 0;line-height: 18px;" v-model="problemDesc" v-bind:disabled="edit">
+
+                                    </textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>开发人员意见</td>
+                                <td colspan="3">
+                                    <textarea style="min-height: 40px; width: 100%;border: 0;line-height: 18px;" v-model="suggest" v-bind:disabled="edit">
+
+                                    </textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>解决方案</td>
+                                <td colspan="3">
+                                    <textarea style="min-height: 40px; width: 100%;border: 0;line-height: 18px;" v-model="solution" v-bind:disabled="edit">
+
+                                    </textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>闭环结果</td>
+                                <td colspan="3">
+                                        <textarea style="min-height: 40px; width: 100%;border: 0;line-height: 18px;" v-model="result" v-bind:disabled="edit">
+
+                                        </textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>测试人</td>
+                                <td>
+                                    <input style="width: 100%;height: 100%;border: 0;" v-model="testPerson" v-bind:disabled="edit"/>
+                                </td>
+                                <td>测试时间</td>
+                                <td>
+                                    <!--<input class="inputmask" data-inputmask="'alias': 'date','alias': 'yyyy-mm-dd'" style="width: 100%;height: 100%;border: 0;" v-bind:value="testTime" v-bind:disabled="edit"/>-->
+                                    <div id="testTime" class="input-group date datepicker" style="border: 0;">
+                                        <input id="myDate" type="text" style="width: 100%;height: 100%;border: 0;" v-model="testTime" v-bind:disabled="edit">
+                                        <span class="input-group-addon input-group-append border-left" style="display: none;">
+                                            <span class="mdi mdi-calendar input-group-text"></span>
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>备注</td>
+                                <td colspan="3">
+                                    <input style="width: 100%;height: 100%;border: 0;" v-model="remark" v-bind:disabled="edit"/>
+                                </td>
+                            </tr>
+                            <tr v-for="item in other">
+                                <td v-text="item.label">备注</td>
+                                <td colspan="3">
+                                    <input style="width: 100%;height: 100%;border: 0;" v-bind:name="item.name" v-model="item.value" v-bind:disabled="edit"/>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-12" v-if="!edit">
+                        <hr/>
+                        <div class="d-flex flex-row-reverse">
+                            <button class="btn btn-outline-light btn-rounded" style="width: 85px;" onclick="submit()">确定</button>
+                            <button class="btn btn-outline-light btn-rounded" style="width: 85px; margin-right: 5px;" onclick="cancel()">取消</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

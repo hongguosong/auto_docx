@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head th:replace="@{/commons/_common_header} :: common_header(~{::title},~{::link},~{::style})">
+    <title>组织结构</title>
+
+    <link rel="stylesheet" th:href="@{/vendors/jsgrid/jsgrid.min.css}">
+    <link rel="stylesheet" th:href="@{/vendors/jsgrid/jsgrid-theme.min.css}">
+
+<!--    <link rel="stylesheet" type="text/css" th:href="@{/ztreecss/demo.css}"/>-->
+    <link rel="stylesheet" type="text/css" th:href="@{/ztreecss/zTreeStyle/zTreeStyle.css}">
+
+    <style>
+        .jsgrid .jsgrid-table .jsgrid-filter-row input[type=text] {
+            height: 35px;
+        }
+        .ztree *{
+            font-size: 15px;
+        }
+        .card .card-body {
+            padding: 1.75rem 1.75rem 0 1.75rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+    <div th:replace="@{/commons/_navbar} :: navbar" />
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_settings-panel.html -->
+        <div th:replace="@{/commons/_settings-panel} :: settings-panel" />
+        <!-- partial -->
+        <!-- partial:partials/_sidebar.html -->
+        <div th:replace="@{/commons/_sidebar} :: sidebar" />
+        <!-- partial -->
+        <div class="main-panel">
+<!--            <div class="content-wrapper">-->
+<!--                <div class="row grid-margin">-->
+<!--                    <div class="col-12">-->
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">机构管理</h4>
+                                <!--<p class="card-description">A basic example of js-grid</p>-->
+                                <div class="col-lg-12 row" style="margin-top: 20px">
+                                    <div class="col-lg-2">
+                                        <div>组织结构：</div>
+                                        <div><ul id="orgTree" class="ztree" style="margin-top: 8px;"></ul></div>
+                                    </div>
+                                    <div class="col-lg-10">
+                                        <div>组织结构信息：</div>
+                                        <div id="org-info" class="pt-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+            <div th:replace="@{commons/_footer} :: footer" />
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+
+<div th:replace="@{/commons/_common_foot_js} :: footjs"></div>
+
+<script th:src="@{/vendors/jsgrid/jsgrid.min.js}"></script>
+<!--<script th:src="@{/myjs/js-grid.js}"></script>-->
+<!--<script th:src="@{/myjs/db.js}"></script>-->
+
+<script th:src="@{/ztreejs/jquery.ztree.core.js}"></script>
+<script th:src="@{/ztreejs/jquery.ztree.excheck.js}"></script>
+</body>
+<script>
+    function zTreeOnClick(event, treeId, treeNode) {
+        if ($("#org-info").length) {
+            $("#org-info").jsGrid({
+                height: "650px",
+                width: "100%",
+                filtering: true,
+                editing: true,
+                inserting: true,
+                sorting: true,
+                paging: true,
+                pageLoading: true,
+                autoload: true,
+                pagerFormat: "{first} {prev} {pages} {next} {last}",
+                pagePrevText: "上一页",
+                pageNextText: "下一页",
+                pageFirstText: "首页",
+                pageLastText: "尾页",
+                pageSize: 15,
+                pageButtonCount: 5,
+                deleteConfirm: "确定删除该组织结构?",
+                //data: db.group,
+                controller: {
+                    loadData: function(filter) {
+                        filter.id = treeNode.id;
+                        filter.pageIndex = filter.pageIndex - 1;
+                        return $.ajax({
+                            type: "post",
+                            url: "/org/selectOrgsByPId",
+                            contentType: "application/json",
+                            dataType: "json",
+                            data: JSON.stringify(filter)
+                        })
+                    },
+                    insertItem: function(insertingClient) {
+                        insertingClient.pId = treeNode.id;
+                        return $.ajax({
+                            type: "post",
+                            url: "/org/insertOrg",
+                            contentType: "application/json",
+                            dataType: "json",
+                            data: JSON.stringify(insertingClient),
+                            success: function (data) {
+                                if (data.code == 0){
+                                    var zTree = $.fn.zTree.getZTreeObj("orgTree"),
+                                        type = "refresh",
+                                        silent = false,
+                                        nodes = zTree.getSelectedNodes();
+                                    nodes[0].isParent = true;
+                                    zTree.reAsyncChildNodes(nodes[0], type, silent);
+                                    zTree.selectNode(nodes[0]);
+                                }
+                            }
+                        });
+                    },
+                    updateItem: function(updatingClient) {
+                        return $.ajax({
+                            type: "post",
+                            url: "/org/updateOrg",
+                            contentType: "application/json",
+                            dataType: "json",
+                            data: JSON.stringify(updatingClient),
+                            success: function (data) {
+                                if (data.code == 0){
+                                    var zTree = $.fn.zTree.getZTreeObj("orgTree"),
+                                        type = "refresh",
+                                        silent = false,
+                                        nodes = zTree.getSelectedNodes();
+                                    zTree.reAsyncChildNodes(nodes[0], type, silent);
+                                    zTree.selectNode(nodes[0]);
+                                    $("#org-info").jsGrid("reset");
+                                }
+                            }
+                        })
+                    },
+                    deleteItem: function(deletingClient) {
+                        return $.ajax({
+                            type: "post",
+                            url: "/org/deleteOrg",
+                            contentType: "application/json",
+                            dataType: "json",
+                            data: JSON.stringify(deletingClient),
+                            success: function (data) {
+                                if (data.code == 0){
+                                    alert(data.data.data);
+                                    if (data.data.data === "删除成功"){
+                                        var zTree = $.fn.zTree.getZTreeObj("orgTree"),
+                                            type = "refresh",
+                                            silent = false,
+                                            nodes = zTree.getSelectedNodes();
+                                        var count = nodes[0].children.length - 1;
+                                        zTree.reAsyncChildNodes(nodes[0], type, silent);
+                                        zTree.selectNode(nodes[0]);
+                                        if (count == 0){
+                                            nodes[0].isParent = false;
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                },
+                fields: [
+                    {
+                        title: "标识",
+                        name: "id",
+                        type: "number",
+                        width: 50,
+                        visible: false
+                    },
+                    {
+                        title: "名称",
+                        name: "orgName",
+                        type: "text",
+                        width: 150,
+                        align: "center",
+                        validate: "required"
+                    },
+                    {
+                        title: "描述",
+                        name: "orgDesc",
+                        type: "text",
+                        width: 150,
+                        align: "center",
+                        validate: "required"
+                    },
+                    {
+                        title: "",
+                        name: "pId",
+                        type: "text",
+                        width: 50,
+                        align: "center",
+                        visible:false
+                    },
+                    {
+                        type: "control"
+                    }
+                ]
+            });
+        }
+    }
+
+    var setting = {
+        async: {
+            enable: true,
+            url: "/org/getOrgsByPId",
+            type: "post",
+            autoParam:["id"],
+            otherParam:{},
+            dataFilter: null
+        },
+        data: {
+            key: {
+                name:"orgName"
+            },
+            simpleData: {
+                enable: true,
+                idKey: "id",
+                pIdKey: "pId"
+            }
+        },
+        callback: {
+            onClick: zTreeOnClick
+            // onAsyncSuccess: showRight
+        }
+    };
+
+    $(function(){
+        //初次加载ztree
+        $.ajax({
+            url: "/org/selectOrgs",
+            type: "post",
+            data: {},
+            success: function (data) {
+                $.fn.zTree.init($("#orgTree"), setting, data);
+                var zTreeObj = $.fn.zTree.getZTreeObj("orgTree");//获取ztree对象
+                var node = zTreeObj.getNodesByFilter(function (node) { //获取根节点
+                    return node.level == 0
+                }, true);
+                zTreeObj.expandNode(node,true);
+                zTreeObj.selectNode(node);//选择点
+                zTreeObj.setting.callback.onClick(null, zTreeObj.setting.treeId, node);
+            }
+        })
+    });
+</script>
+</html>

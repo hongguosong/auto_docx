@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.dao.LogDao">
+<!--    <select id="getLogList" resultType="com.example.demo.entity.LogEntity">-->
+<!--        select * from sys_log where-->
+<!--        <if test="log != null">-->
+<!--            log like concat('%', #{log}, '%')-->
+<!--        </if>-->
+<!--        <if test="createPerson != null">-->
+<!--           and create_person like concat('%', #{createPerson}, '%')-->
+<!--        </if>-->
+<!--        <if test="createTime != null">-->
+<!--           and create_time like concat('%', #{createTime}, '%')-->
+<!--        </if>-->
+<!--        limit #{startNum},#{pageSize}-->
+<!--    </select>-->
+
+<!--    <select id="getLogListCount" resultType="java.lang.Integer">-->
+<!--        select count(*) from sys_log where-->
+<!--        <if test="log != null">-->
+<!--            log like concat('%', #{log}, '%')-->
+<!--        </if>-->
+<!--        <if test="createPerson != null">-->
+<!--            and create_person like concat('%', #{createPerson}, '%')-->
+<!--        </if>-->
+<!--        <if test="createTime != null">-->
+<!--            and create_time like concat('%', #{createTime}, '%')-->
+<!--        </if>-->
+<!--    </select>-->
+
+    <select id="getLogList" resultType="com.example.demo.entity.LogEntity">
+        select * from sys_log where delete_id = 2
+        <if test="preTime != null">
+            and UNIX_TIMESTAMP(create_time) &gt;= UNIX_TIMESTAMP(#{preTime})
+        </if>
+        <if test="nextTime != null">
+            and UNIX_TIMESTAMP(create_time) &lt;= UNIX_TIMESTAMP(#{nextTime})
+        </if>
+        <if test="createPerson != null and createPerson != ''">
+            and create_person = #{createPerson}
+        </if>
+        limit #{startNum}, #{pageSize}
+    </select>
+
+    <select id="getLogListCount" resultType="int">
+        select count(*) from sys_log where delete_id = 2
+        <if test="preTime != null">
+            and UNIX_TIMESTAMP(create_time) &gt;= UNIX_TIMESTAMP(#{preTime})
+        </if>
+        <if test="nextTime != null">
+            and UNIX_TIMESTAMP(create_time) &lt;= UNIX_TIMESTAMP(#{nextTime})
+        </if>
+        <if test="createPerson != null and createPerson != ''">
+            and create_person = #{createPerson}
+        </if>
+    </select>
+
+    <insert id="insertLog">
+        insert into sys_log(log, create_person, create_time) values (#{log}, #{createPerson}, #{createTime})
+    </insert>
+
+    <select id="getCreatePersonList" resultType="com.example.demo.entity.LogEntity">
+        select * from sys_log
+    </select>
+</mapper>

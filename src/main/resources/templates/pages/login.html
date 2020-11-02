@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head th:replace="@{commons/_common_header} :: common_header(~{::title},~{::style},~{})">
+    <title>登录</title>
+
+    <style>
+        .login-bg{
+            /*background: url("/images/login/login1.jpg")no-repeat center;*/
+            /*background-size: 100%;*/
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container-scroller">
+    <div class="container-fluid page-body-wrapper full-page-wrapper">
+        <div class="content-wrapper d-flex align-items-stretch auth auth-img-bg">
+            <div class="row flex-grow">
+                <div class="col-lg-6 d-flex align-items-center justify-content-center">
+                    <div class="auth-form-transparent text-left p-3">
+                        <div>
+                            <h1><span style="color: #0e4cfd">上海卫星工</span><span style="color: #F4C20B">程研究所</span></h1>
+                        </div>
+                        <h4>欢迎回来!</h4>
+                        <h6 class="font-weight-light">很高兴再次见到你!</h6>
+                        <form class="pt-3" action="/login" method="post">
+                            <div class="form-group">
+                                <label for="username">账号</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend bg-transparent">
+                                        <span class="input-group-text bg-transparent border-right-0">
+                                            <i class="mdi mdi-account-outline text-primary"></i>
+                                        </span>
+                                    </div>
+                                    <input type="text" class="form-control form-control-lg border-left-0" id="username" name="username">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">密码</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend bg-transparent">
+                                        <span class="input-group-text bg-transparent border-right-0">
+                                            <i class="mdi mdi-lock-outline text-primary"></i>
+                                        </span>
+                                    </div>
+                                    <input type="password" class="form-control form-control-lg border-left-0" name="password" id="password">
+                                </div>
+                            </div>
+                            <div>
+<!--                                <span style="color: red;" th:if="${param.error}" th:text="用户名或密码错误，请重新输入."></span>-->
+                                <span style="color: red;" th:if="${param.error}" th:text="${session.SPRING_SECURITY_LAST_EXCEPTION!=null?session.SPRING_SECURITY_LAST_EXCEPTION.message:''}"></span>
+                            </div>
+                            <div class="my-2 d-flex justify-content-between align-items-center">
+                                <div class="form-check">
+                                    <label class="form-check-label text-muted">
+                                        <input type="checkbox" class="form-check-input" name="remember-me">
+                                        保持登录状态
+                                    </label>
+                                </div>
+                                <a href="#" class="auth-link text-black">忘记密码?</a>
+                            </div>
+                            <div class="my-3">
+                                <input type="submit" class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn" style="color: white" value="登录"></input>
+                            </div>
+                            <!--<div class="mb-2 d-flex">-->
+                                <!--<button type="button" class="btn btn-facebook auth-form-btn flex-grow mr-1">-->
+                                    <!--<i class="mdi mdi-facebook mr-2"></i>Facebook-->
+                                <!--</button>-->
+                                <!--<button type="button" class="btn btn-google auth-form-btn flex-grow ml-1">-->
+                                    <!--<i class="mdi mdi-google mr-2"></i>Google-->
+                                <!--</button>-->
+                            <!--</div>-->
+<!--                            <div class="text-center mt-4 font-weight-light">-->
+<!--                                还没有账号吗? <a th:href="@{/register}" class="text-primary">创建</a>-->
+<!--                            </div>-->
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-6 login-bg d-flex flex-row" th:style="'background:url(' + @{/images/login/login1.jpg} + ') no-repeat center;'">
+                    <p class="text-white font-weight-medium text-center flex-grow align-self-end">Copyright &copy; 2019  All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+        <!-- content-wrapper ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+    <!--<div th:replace="@{commons/_common_foot_js} :: footjs"></div>-->
+    <script th:src="@{/vendors/js/vendor.bundle.base.js}"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page-->
+
+    <!-- End plugin js for this page-->
+    <!-- inject:js -->
+    <script th:src="@{/js/off-canvas.js}"></script>
+    <script th:src="@{/js/hoverable-collapse.js}"></script>
+    <script th:src="@{/js/template.js}"></script>
+    <script th:src="@{/js/settings.js}"></script>
+    <script th:src="@{/js/todolist.js}"></script>
+    <script th:src="@{/vendors/jquery-toast-plugin/jquery.toast.min.js}"></script>
+    <script th:src="@{/myjs/comment.js}"></script>
+    <script th:src="@{/vendors/vue/vue.js}"></script>
+</body>
+</html>

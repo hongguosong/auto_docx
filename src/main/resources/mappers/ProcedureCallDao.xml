@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.ProcedureCallDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.ProcedureCallEntity">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="procedure_id" jdbcType="INTEGER" property="procedureId" />
+    <result column="called_id" jdbcType="INTEGER" property="calledId" />
+  </resultMap>
+  <resultMap id="ProcedureCallDtoMap" type="com.example.demo.dto.ProcedureCallDto">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="procedure_id" jdbcType="INTEGER" property="procedureId" />
+    <result column="called_id" jdbcType="INTEGER" property="calledId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="full_name" jdbcType="VARCHAR" property="fullName" />
+    <result column="long_name" jdbcType="VARCHAR" property="longName" />
+    <result column="version" jdbcType="INTEGER" property="version" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_procedure_call
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.example.demo.entity.ProcedureCallEntity">
+    insert into sys_procedure_call (id, procedure_id, called_id
+      )
+    values (#{id,jdbcType=INTEGER}, #{procedureId,jdbcType=INTEGER}, #{calledId,jdbcType=INTEGER}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.ProcedureCallEntity">
+    update sys_procedure_call
+    set procedure_id = #{procedureId,jdbcType=INTEGER},
+      called_id = #{calledId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, procedure_id, called_id
+    from sys_procedure_call
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, procedure_id, called_id
+    from sys_procedure_call
+  </select>
+  <select id="findProcedureCallChildByProcedureId" resultMap="ProcedureCallDtoMap">
+    select c.id, c.procedure_id, c.called_id, r.name, r.full_name, r.long_name, r.version
+    from sys_procedure_call c
+    left join sys_procedure r on r.id = c.called_id
+    where c.procedure_id = #{procedureId,jdbcType=INTEGER}
+  </select>
+  <select id="findProVerProcedureCallChildByProcedureId" resultMap="ProcedureCallDtoMap">
+    select c.id, c.procedure_id, c.called_id, r.name, r.full_name, r.long_name, r.version
+    from sys_procedure_call c
+    left join sys_procedure r on r.id = c.called_id
+    left join sys_project_procedure p on p.procedure_id = r.id
+    where c.procedure_id = #{procedureId,jdbcType=INTEGER} and
+      p.project_id = #{project,jdbcType=INTEGER} and
+      p.project_version = #{version,jdbcType=VARCHAR}
+  </select>
+  <select id="findProcedureCallParentByProcedureId" resultMap="ProcedureCallDtoMap">
+    select c.id, c.procedure_id, c.called_id, r.name, r.full_name, r.long_name, r.version
+    from sys_procedure_call c
+    left join sys_procedure r on r.id = c.procedure_id
+    where c.called_id = #{procedureId,jdbcType=INTEGER}
+  </select>
+
+  <select id="findProVerProcedureCallParentByProcedureId" resultMap="ProcedureCallDtoMap">
+    select c.id, c.procedure_id, c.called_id, r.name, r.full_name, r.long_name, r.version
+    from sys_procedure_call c
+    left join sys_procedure r on r.id = c.procedure_id
+    left join sys_project_procedure p on p.procedure_id = r.id
+    where c.called_id = #{procedureId,jdbcType=INTEGER} and
+      p.project_id = #{project,jdbcType=INTEGER} and
+      p.project_version = #{version,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByProcedureId" resultMap="BaseResultMap">
+    select id, procedure_id, called_id
+    from sys_procedure_call
+    where procedure_id = #{procedureId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByProcedureIdAndCallId" resultMap="BaseResultMap">
+    select id, procedure_id, called_id
+    from sys_procedure_call
+    where procedure_id = #{procedureId,jdbcType=INTEGER} and called_id = #{calledId,jdbcType=INTEGER}
+  </select>
+</mapper>

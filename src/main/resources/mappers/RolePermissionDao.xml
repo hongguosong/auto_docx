@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.dao.RolePermissionDao">
+    <insert id="insertRolePermission">
+        INSERT INTO sys_role_permission(role_id, permission_id, create_time, update_time) VALUES (#{roleId}, #{permissionId}, #{createTime}, #{updateTime})
+    </insert>
+
+    <select id="selectPermissionIds" resultType="int">
+        SELECT permission_id FROM sys_role_permission WHERE role_id = #{roleId} AND delete_id = 2
+    </select>
+
+    <update id="deleteRolePermission">
+        UPDATE sys_role_permission SET delete_id = 1 WHERE role_id = #{roleId}
+    </update>
+
+    <delete id="delRolePermission">
+        DELETE FROM sys_role_permission WHERE role_id = #{roleId} AND permission_id = #{permissionId} AND delete_id = 2
+    </delete>
+
+    <update id="deletePermission">
+        UPDATE sys_role_permission SET delete_id = 1 WHERE permission_id = #{permissionId}
+    </update>
+</mapper>

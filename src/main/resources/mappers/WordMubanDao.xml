@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.WordMubanDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.WordMubanEntity">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="file_url" jdbcType="VARCHAR" property="fileUrl" />
+    <result column="creat_person" jdbcType="VARCHAR" property="creatPerson" />
+    <result column="creat_time" jdbcType="TIMESTAMP" property="creatTime" />
+    <result column="project_id" jdbcType="INTEGER" property="projectId" />
+    <result column="project_version" jdbcType="VARCHAR" property="projectVersion" />
+    <result column="file_type" jdbcType="INTEGER" property="fileType" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_word_muban
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.entity.WordMubanEntity">
+    <selectKey  keyProperty="id" order="AFTER" resultType="int">
+      select LAST_INSERT_ID()
+    </selectKey>
+    insert into sys_word_muban (file_name, file_url,
+      creat_person, creat_time, project_id, 
+      project_version, file_type)
+    values (#{fileName,jdbcType=VARCHAR}, #{fileUrl,jdbcType=VARCHAR},
+      #{creatPerson,jdbcType=VARCHAR}, #{creatTime,jdbcType=TIMESTAMP}, #{projectId,jdbcType=INTEGER}, 
+      #{projectVersion,jdbcType=VARCHAR}, #{fileType,jdbcType=INTEGER})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.WordMubanEntity">
+    update sys_word_muban
+    set file_name = #{fileName,jdbcType=VARCHAR},
+      file_url = #{fileUrl,jdbcType=VARCHAR},
+      creat_person = #{creatPerson,jdbcType=VARCHAR},
+      creat_time = #{creatTime,jdbcType=TIMESTAMP},
+      project_id = #{projectId,jdbcType=INTEGER},
+      project_version = #{projectVersion,jdbcType=VARCHAR},
+      file_type = #{fileType,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, file_name, file_url, creat_person, creat_time, project_id, project_version, 
+    file_type
+    from sys_word_muban
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, file_name, file_url, creat_person, creat_time, project_id, project_version, 
+    file_type
+    from sys_word_muban
+  </select>
+  <select id="selectByProjectIdAndVersion" resultMap="BaseResultMap">
+    select id, file_name, file_url, creat_person, creat_time, project_id,
+    project_version, file_type
+    from sys_word_muban
+    where project_id = #{projectId,jdbcType=INTEGER} AND
+    project_version = #{version,jdbcType=VARCHAR} AND
+    file_type = #{fileType,jdbcType=INTEGER}
+  </select>
+  <select id="selectByIdAndVersion" resultMap="BaseResultMap">
+    select id, file_name, file_url, creat_person, creat_time, project_id,
+    project_version, file_type
+    from sys_word_muban
+    where project_id = #{projectId,jdbcType=INTEGER} AND
+    project_version = #{version,jdbcType=VARCHAR}
+  </select>
+</mapper>

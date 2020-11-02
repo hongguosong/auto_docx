@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.TcfFileDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.TcfFileEntity">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="file_url" jdbcType="VARCHAR" property="fileUrl" />
+    <result column="function_name" jdbcType="VARCHAR" property="functionName" />
+    <result column="creat_person" jdbcType="VARCHAR" property="creatPerson" />
+    <result column="creat_time" jdbcType="TIMESTAMP" property="creatTime" />
+    <result column="project_id" jdbcType="INTEGER" property="projectId" />
+    <result column="project_version" jdbcType="VARCHAR" property="projectVersion" />
+    <result column="num" jdbcType="VARCHAR" property="num" />
+    <result column="hash_value" jdbcType="VARCHAR" property="hashValue" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_tcf_file
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByFunctionNameAndHashValue">
+    delete from sys_tcf_file
+    where (function_name = #{longName,jdbcType=VARCHAR} or function_name = REPLACE(REPLACE(REPLACE(#{fullName,jdbcType=VARCHAR}, "(", "_"),")",""),",","_"))
+    and hash_value = #{hashValue,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.entity.TcfFileEntity">
+    <selectKey  keyProperty="id" order="AFTER" resultType="int">
+      select LAST_INSERT_ID()
+    </selectKey>
+    insert into sys_tcf_file (file_name, file_url,
+      function_name, creat_person, creat_time, 
+      project_id, project_version, num, hash_value)
+    values (#{fileName,jdbcType=VARCHAR}, #{fileUrl,jdbcType=VARCHAR},
+      #{functionName,jdbcType=VARCHAR}, #{creatPerson,jdbcType=VARCHAR}, #{creatTime,jdbcType=TIMESTAMP}, 
+      #{projectId,jdbcType=INTEGER}, #{projectVersion,jdbcType=VARCHAR}, #{num, jdbcType=VARCHAR}, #{hashValue, jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.TcfFileEntity">
+    update sys_tcf_file
+    set file_name = #{fileName,jdbcType=VARCHAR},
+      file_url = #{fileUrl,jdbcType=VARCHAR},
+      function_name = #{functionName,jdbcType=VARCHAR},
+      creat_person = #{creatPerson,jdbcType=VARCHAR},
+      creat_time = #{creatTime,jdbcType=TIMESTAMP},
+      project_id = #{projectId,jdbcType=INTEGER},
+      project_version = #{projectVersion,jdbcType=VARCHAR},
+      num = #{projectVersion,jdbcType=VARCHAR},
+      hash_value = #{hashValue,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, file_name, file_url, function_name, creat_person, creat_time, project_id, 
+    project_version, num, hash_value
+    from sys_tcf_file
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, file_name, file_url, function_name, creat_person, creat_time, project_id, 
+    project_version, num, hash_value
+    from sys_tcf_file
+  </select>
+  <select id="selectByNameAndProjectIdAndVersion" resultMap="BaseResultMap">
+    select id, file_name, file_url, function_name, creat_person, creat_time, project_id,
+    project_version, num
+    from sys_tcf_file
+    where function_name = #{name,jdbcType=VARCHAR} AND
+      project_id = #{projectId,jdbcType=INTEGER} AND
+      project_version = #{version,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByProjectIdAndVersion" resultMap="BaseResultMap">
+    select id, file_name, file_url, function_name, creat_person, creat_time, project_id,
+    project_version, num, hash_value
+    from sys_tcf_file
+    where
+    ((function_name, hash_value) in
+    (SELECT pd.long_name,pd.hash_value FROM sys_procedure pd
+	 LEFT JOIN sys_project_procedure pdd ON pdd.procedure_id = pd.id
+     WHERE pdd.project_id = #{projectId,jdbcType=INTEGER} AND pdd.project_version = #{version,jdbcType=VARCHAR}))
+    OR
+    ((function_name,hash_value) in
+    (SELECT REPLACE(REPLACE(REPLACE(pd.full_name, "(", "_"),")",""),",","_"),pd.hash_value FROM sys_procedure pd
+	 LEFT JOIN sys_project_procedure pdd ON pdd.procedure_id = pd.id
+     WHERE pdd.project_id = #{projectId,jdbcType=INTEGER} AND pdd.project_version = #{version,jdbcType=VARCHAR}))
+  </select>
+  <select id="findTcfFileByProcedureFullName" resultMap="BaseResultMap">
+    select id, file_name, file_url, function_name, creat_person, creat_time, project_id,
+    project_version, num, hash_value
+    from sys_tcf_file
+    where function_name = #{functionName,jdbcType=VARCHAR} AND
+      project_id = #{projectId,jdbcType=INTEGER} AND
+      project_version = #{version,jdbcType=VARCHAR}
+  </select>
+  <select id="findTcfFileByFuncName" resultMap="BaseResultMap">
+    select id, file_name, file_url, function_name, creat_person, creat_time, project_id,
+    project_version, num, hash_value
+    from sys_tcf_file
+    where function_name = #{functionName,jdbcType=VARCHAR} and hash_value = #{hashValue,jdbcType=VARCHAR}
+  </select>
+  <update id="updateTcfFileByFuncName" parameterType="com.example.demo.entity.TcfFileEntity">
+    update sys_tcf_file
+    set file_name = #{fileName,jdbcType=VARCHAR},
+    file_url = #{fileUrl,jdbcType=VARCHAR},
+    creat_person = #{creatPerson,jdbcType=VARCHAR},
+    creat_time = #{creatTime,jdbcType=TIMESTAMP},
+    project_id = #{projectId,jdbcType=INTEGER},
+    project_version = #{projectVersion,jdbcType=VARCHAR}
+    where function_name = #{functionName,jdbcType=VARCHAR}
+    and hash_value = #{hashValue,jdbcType=VARCHAR}
+  </update>
+</mapper>

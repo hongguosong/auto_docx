@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head th:replace="@{/commons/_common_header} :: common_header(~{::title},~{::link},~{::style})">
+    <title>角色管理</title>
+
+    <link rel="stylesheet" th:href="@{/vendors/datatables.net-bs4/dataTables.bootstrap4.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/ztreecss/demo.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/ztreecss/zTreeStyle/zTreeStyle.css}">
+    <style>
+        .role-add{
+            float: right;
+            margin-right: 62px;
+            margin-top: 5px;
+            margin-left: 204px;
+        }
+        #add{
+            width: 124px;
+            height: 39px;
+        }
+        #role_table_filter{
+            float: left;
+            margin-left: 10px;
+        }
+        .card .card-body {
+            padding: 1.75rem 1.75rem 0 1.75rem;
+        }
+        #role_table_length select{
+            height: 39px;
+        }
+
+        #role_table_paginate{
+            margin-left: 10px;
+            margin-bottom: 20px;
+        }
+
+        #role_table_info{
+            margin-left: 10px;
+            margin-bottom: 20px;
+        }
+        /*#role_table_next{*/
+        /*    margin-right: 158px;*/
+        /*}*/
+    </style>
+</head>
+<body>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+    <div th:replace="@{/commons/_navbar} :: navbar" />
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_settings-panel.html -->
+        <div th:replace="@{/commons/_settings-panel} :: settings-panel" />
+        <!-- partial -->
+        <!-- partial:partials/_sidebar.html -->
+        <div th:replace="@{/commons/_sidebar} :: sidebar" />
+        <!-- partial -->
+        <div class="main-panel">
+<!--            <div class="content-wrapper">-->
+<!--                <div class="row grid-margin">-->
+<!--                    <div class="col-12">-->
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">角色管理</h4>
+                                <!--<p class="card-description">A basic example of js-grid</p>-->
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="table-responsive" style="overflow: hidden;">
+
+                                            <!-- 模态框(Modal) -->
+                                            <!-- tabindex属性支持使用Tab键切换编辑框 -->
+                                            <div class="modal fade" id="role_modal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document" style="max-width: 700px">
+                                                    <div class="modal-content" style="width: 700px; height: 620px;">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="ModalLabel">添加</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body col-md-12 row">
+                                                            <div class="col-sm-5">
+                                                                <span>功能权限</span>
+                                                                <ul id="treeDemo" class="ztree"></ul>
+                                                            </div>
+                                                            <div class="col-sm-7">
+                                                                <div style="margin-left: 20px">
+                                                                    <div>
+                                                                        <table style="border-collapse:separate; border-spacing:0 30px;width: 90%;">
+                                                                            <tr>
+                                                                                <td style="text-align: center;vertical-align: middle">
+                                                                                    <label for="role_name"><span>角色名:</span></label>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <input id="role_name" type="text" class="form-control" style="margin-left: 20px;">
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                            <td style="text-align: center;vertical-align: middle">
+                                                                                <label for="role_desc"><span>角色描述:</span></label>
+                                                                            </td>
+                                                                            <td>
+                                                                                <input id="role_desc" type="text" class="form-control" style="margin-left: 20px;">
+                                                                            </td>
+                                                                        </tr>
+                                                                            <tr>
+                                                                                <td style="text-align: center;vertical-align: middle">
+                                                                                    <label for="create_time"><span>创建时间:</span></label>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <input id="create_time" type="text" class="form-control" style="margin-left: 20px;" disabled>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td style="text-align: center;vertical-align: middle">
+                                                                                    <label for="update_time"><span>更新时间:</span></label>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <input id="update_time" type="text" class="form-control" style="margin-left: 20px;" disabled>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </table>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-success" id="yes">确定</button>
+                                                            <button type="button" class="btn btn-light" data-dismiss="modal">取消</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="role-add">
+                                                <button id="add" class="btn btn-outline-primary" data-toggle='modal' data-target='#role_modal'>添加</button>
+                                            </div>
+
+                                            <div style="margin-top: 5px">
+                                                <table id="role_table" class="table" style="width: 100%">
+                                                    <thead>
+                                                    <tr>
+                                                        <th style="display: none">标识</th>
+                                                        <th style="width: 22%;">角色名</th>
+                                                        <th style="width: 22%;">角色描述</th>
+                                                        <th style="width: 22%;">创建时间</th>
+                                                        <th style="width: 22%;">更新时间</th>
+                                                        <th style="width: 12%;">操作</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+            <div th:replace="@{commons/_footer} :: footer" />
+        </div>
+        <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+
+<div th:replace="@{/commons/_common_foot_js} :: footjs"></div>
+
+<script th:src="@{/vendors/datatables.net/jquery.dataTables.js}"></script>
+<script th:src="@{/vendors/datatables.net-bs4/dataTables.bootstrap4.js}"></script>
+<script th:src="@{/vendors/sweetalert/sweetalert.min.js}"></script>
+
+<!--<script th:src="@{/myjs/zTree/jquery-1.4.4.min.js}"></script>-->
+<script th:src="@{/ztreejs/jquery.ztree.core.js}"></script>
+<script th:src="@{/ztreejs/jquery.ztree.excheck.js}"></script>
+
+<script th:src="@{/js/jquery-ui.js}"></script>
+
+</body>
+<script>
+    var role_table = $('#role_table');
+    var role_modal = $("#role_modal");
+    var treeDemo = $("#treeDemo");
+
+    var role_name = $("#role_name");
+    var role_desc = $("#role_desc");
+    var create_time = $("#create_time");
+    var update_time = $("#update_time");
+
+    var idFlag = -2;    //定义一个idFlag，作用：1. -2表示添加角色， 非-2表示更新角色； 2. 用idFlag来存储更新角色时的角色id
+
+    //构建功能权限菜单
+    var setting = {
+        async: {
+            enable: true,
+            url: "/permission/selectAllPermissions",
+            type: "post"
+        },
+        check: {
+            enable: true,
+            chkStyle: "checkbox",
+            chkboxType: { "Y": "ps", "N": "ps" }
+        },
+        data: {
+            key: {
+                name:"menuName"
+            },
+            simpleData: {
+                enable: true,
+                idKey: "id",
+                pIdKey: "parentId"
+            }
+        },
+        view: {
+            showIcon: false
+        },
+        callback: {
+            onClick: function (event) {
+                event.preventDefault();    //禁止点击节点跳转节点属性中的url
+            },
+            onAsyncSuccess: function selectedNodes(){
+                //异步加载zTree时初始化操作选中节点需要在 onAsyncSuccess 中实现，否则会偶尔出现初始选中节点仍然为空的BUG
+                if (idFlag != -2){
+                    var zTreeObj = $.fn.zTree.getZTreeObj("treeDemo");
+                    $.ajax({
+                        url: "/RolePermission/selectPermissionIds",
+                        type: "post",
+                        data: {id: idFlag},
+                        success: function (data) {
+                            if (data.length > 0){
+                                for (var i = 0; i < data.length; i++){
+                                    var treeNode = zTreeObj.getNodeByParam("id", data[i]);
+                                    zTreeObj.checkNode(treeNode, true);
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    };
+
+    //获取实时时间并更新
+    function NowTime(){
+        var time = new Date();
+        //获取年月日
+        var year = time.getFullYear();
+        var month = time.getMonth() + 1; //月份是根据下标取的，所以需要加1
+        var day = time.getDate();
+
+        //获取时分秒
+        var h = time.getHours();
+        var m = time.getMinutes();
+        var s = time.getSeconds();
+
+        //时分秒填充0
+        month = check(month);
+        day = check(day);
+        h = check(h);
+        m = check(m);
+        s = check(s);
+
+        var timeStr = year + "-" + month + "-" + day + " " + h + ":" + m + ":" + s;
+        if (role_modal.find('.modal-title').text() === "添加"){
+            create_time.val(timeStr);
+            update_time.val(timeStr);
+        } else {
+            update_time.val(timeStr);
+        }
+    }
+
+    function check(hms) {
+        if (hms < 10){
+            hms = '0' + hms;
+        }
+        return hms;
+    }
+
+    (function($) {
+        'use strict';
+        $(function() {
+            //初始化dataTable
+            var table = role_table.DataTable({
+
+                // "dom": "<'row'<'col-sm-4'l><'col-sm-4'f>>",
+                "dom": "<'row top'f>t<'row bottom'pi>",
+                "lengthMenu": [10],
+
+                "scrollX": true,
+                "scrollY": "500px",
+
+                "ajax":{
+                    "url": "/role/selectRoles",
+                    "dataSrc": ""
+                },
+
+                "columns":[
+                    {"data": "id"},
+                    {"data": "roleName"},
+                    {"data": "roleDesc"},
+                    {"data": "createTime"},
+                    {"data": "updateTime"},
+                    {"data": "operation"}
+                ],
+
+                "columnDefs":[
+                    {
+                        "visible": false,
+                        "targets": 0
+                    },
+                    {
+                        "targets": -1,    //"targets"取值-1表示操作最后一列数据。操作其他列数据时，第一列下标为0
+                        "data": null,
+                        "render": function (data, type, full, meta) {
+                            //data-toggle指以什么事件触发，常用的如modal,popover,tooltips等，data-target指事件的目标，
+                            // 一起使用就是代表data-target所指的元素以data-toggle指定的形式显示
+                            return "<button id='update' type='button' data-toggle='modal' data-target='#role_modal' class='btn btn-outline-success'>编辑</button>" +
+                                "<button id='delete' type='button' class='btn btn-outline-danger'>删除</button>"
+
+                        }
+                    }
+                ],
+
+                //将语言设置成中文
+                "language": {
+                    "sProcessing": "处理中...",
+                    "sLengthMenu": "显示 _MENU_ 项数据",
+                    "sZeroRecords": "没有匹配结果",
+                    "sInfo": "显示第 _START_ 至 _END_ 项数据，共 _TOTAL_ 项",
+                    "sInfoEmpty": "显示第 0 至 0 项数据，共 0 项",
+                    "sInfoFiltered": "(由 _MAX_ 项数据过滤)",
+                    "sInfoPostFix": "",
+                    "sSearch": "搜索",
+                    "sUrl": "",
+                    "sEmptyTable": "表中数据为空",
+                    "sLoadingRecords": "载入中...",
+                    "sInfoThousands": ",",
+                    "oPaginate": {
+                        "sFirst": "首页",
+                        "sPrevious": "上一页",
+                        "sNext": "下一页",
+                        "sLast": "末页"
+                    },
+                    "oAria": {
+                        "sSortAscending": "以升序排列此列",
+                        "sSortDescending": "以降序排列此列"
+                    }
+                }
+            });
+
+            //直接使用$("#delete").click()方法只能获取第一个delete按钮的点击事件
+            // $("#delete").click(function () {
+            //     alert("delete");
+            // })
+
+            //使用 $("#my_data_table").on()方法可以获取到所有delete按钮的点击事件
+            table.on('click', 'button#delete', function (e) {
+                var row = table.row($(this).parents("tr"))[0];  //获取当前行对象
+                var data = table.row(row).data();   //获取当前行数据对象
+
+                //弹出确定删除对话框
+                swal({
+                    title: '确定删除？',
+                    text: '同时删除所有人员角色栏中的该角色',
+                    icon: 'warning',
+                    // showCancelButton: true,
+                    // confirmButtonColor: '#3f51b5',
+                    cancelButtonColor: '#ff4081',
+                    // confirmButtonText: 'Great ',
+                    buttons: {
+                        cancel: {
+                            text: "取消",
+                            value: null,
+                            visible: true,
+                            className: "btn btn-danger",
+                            closeModal: true
+                        },
+                        confirm: {
+                            text: "确定",
+                            value: true,
+                            visible: true,
+                            className: "btn btn-primary",
+                            closeModal: true
+                        }
+                    }
+                }).then(function (isConfirm) {
+                    if (isConfirm){
+                        if(data.id == 1 || data.id == 14){
+                            swal({
+                                title: "基础角色，不允许删除",
+                                icon: "info"
+                            });
+                            return;
+                        }
+                        $.ajax({
+                            url: "/role/deleteRole",
+                            type: "post",
+                            data: {id:data.id},
+                            success: function (data) {
+                                swal({
+                                    title: "删除成功",
+                                    icon: "info"
+                                }).then(function () {
+                                    //刷新table
+                                    table.ajax.reload();
+                                });
+                            }
+                        })
+                    }
+                });
+
+            });
+
+            //获取所有update按钮的点击事件
+            table.on('click', 'button#update', function () {
+                //修改modal的标题
+                role_modal.on('show.bs.modal', function (event) {
+                    $(this).find(".modal-title").text("修改");
+                });
+                //设置实时创建时间和更新时间
+                NowTime();
+                setInterval(NowTime, 1000);
+
+                var row = table.row($(this).parents("tr"))[0];  //获取当前行对象
+                var data = table.row(row).data();   //获取当前行数据对象
+
+                idFlag = data.id;
+
+                //初始化修改时的modal
+                $.fn.zTree.init(treeDemo, setting);   //初始化 zTree
+                role_name.val(data.roleName);
+                role_desc.val(data.roleDesc);
+                create_time.val(data.createTime);
+
+                var roleName0 = data.roleName;
+
+                $('#yes').off().click(function () {
+                    var roleName = role_name.val();
+                    if (!roleName){
+                        swal({
+                            title:"请输入角色名",
+                            icon: "error"
+                        });
+                        return;
+                    }
+
+                    var isRoleRepeat = false;
+                    if (roleName !== roleName0){
+                        $.ajax({
+                            url: "/role/selectRoleByRoleName",
+                            type: "post",
+                            data: {roleName: roleName},
+                            success: function (data) {
+                                if (data.length > 0) {
+                                    isRoleRepeat = true;
+                                    swal({
+                                        title: "重复角色名",
+                                        text: "已存在角色名为[" + roleName + "]的角色",
+                                        icon: "error"
+                                    }).then(function () {
+                                        role_name.val(roleName0);
+                                    });
+                                }
+                            }
+                        })
+                    }
+
+                    if (!isRoleRepeat) {
+                        swal({
+                            title: '确定修改？',
+                            icon: 'warning',
+                            cancelButtonColor: '#ff4081',
+                            buttons: {
+                                cancel: {
+                                    text: "取消",
+                                    value: null,
+                                    visible: true,
+                                    className: "btn btn-danger",
+                                    closeModal: true
+                                },
+                                confirm: {
+                                    text: "确定",
+                                    value: true,
+                                    visible: true,
+                                    className: "btn btn-primary",
+                                    closeModal: true
+                                }
+                            }
+                        }).then(function (isConfirm) {
+                            if (isConfirm){
+                                //获取zTree选中节点的id，即permissionId
+                                var zTreeObj = $.fn.zTree.getZTreeObj("treeDemo");
+                                var checkedNodes = zTreeObj.getCheckedNodes();
+                                var permissionIds = [];
+                                for (var i = 0; i < checkedNodes.length; i++){
+                                    permissionIds.push(checkedNodes[i].id);
+                                }
+
+                                $.ajax({
+                                    url: "/role/updateRole",
+                                    type: "post",
+                                    data: {
+                                        id: data.id,
+                                        roleName: roleName,
+                                        createTime: create_time.val(),
+                                        updateTime: update_time.val(),
+                                        roleDesc: role_desc.val(),
+                                        permissionIds: permissionIds
+                                    },
+                                    success: function (data) {
+                                        //关闭modal
+                                        role_modal.modal('hide');
+                                        swal({
+                                            title: "修改成功",
+                                            icon: "info"
+                                        }).then(function () {
+                                                //刷新table
+                                                table.ajax.reload();
+                                            }
+                                        );
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+            //点击添加按钮,初始化modal
+            $("#add").on('click', function () {
+                role_modal.on('show.bs.modal', function (event) {
+                    $(this).find(".modal-title").text("添加");
+                });
+
+                idFlag = -2;
+
+                //设置实时创建时间和更新时间
+                NowTime();
+                setInterval(NowTime, 1000);
+
+                $.fn.zTree.init(treeDemo, setting);   //初始化 zTree
+                role_name.val("");
+                role_desc.val("");
+
+                $('#yes').off().click(function () {
+                    var roleName = role_name.val();
+                    var createTime = create_time.val();
+                    var updateTime = update_time.val();
+                    var roleDesc = role_desc.val();
+
+                    if (!roleName){
+                        swal({
+                            title:"请输入角色名",
+                            icon: "error"
+                        });
+                        return;
+                    }
+
+                    $.ajax({
+                        url: "/role/selectRoleByRoleName",
+                        type: "post",
+                        data: {roleName: roleName},
+                        success: function (data) {
+                            if (data.length > 0){
+                                swal({
+                                    title:"重复角色名",
+                                    text: "已存在角色名为[" + roleName + "]的角色",
+                                    icon: "error"
+                                }).then(function () {
+                                    role_name.val("");
+                                });
+                            } else {
+                                swal({
+                                    title: '确定添加？',
+                                    icon: 'warning',
+                                    cancelButtonColor: '#ff4081',
+                                    buttons: {
+                                        cancel: {
+                                            text: "取消",
+                                            value: null,
+                                            visible: true,
+                                            className: "btn btn-danger",
+                                            closeModal: true
+                                        },
+                                        confirm: {
+                                            text: "确定",
+                                            value: true,
+                                            visible: true,
+                                            className: "btn btn-primary",
+                                            closeModal: true
+                                        }
+                                    }
+                                }).then(function (isConfirm) {
+                                    if (isConfirm){
+                                        //获取zTree选中节点的id，即permissionId
+                                        var zTreeObj = $.fn.zTree.getZTreeObj("treeDemo");
+                                        var checkedNodes = zTreeObj.getCheckedNodes();
+                                        var permissionIds = [];
+                                        for (var i = 0; i < checkedNodes.length; i++){
+                                            permissionIds.push(checkedNodes[i].id);
+                                        }
+                                        $.ajax({
+                                            url: "/role/insertRole",
+                                            type: "post",
+                                            data: {
+                                                roleName: roleName,
+                                                createTime: createTime,
+                                                updateTime: updateTime,
+                                                roleDesc: roleDesc,
+                                                permissionIds: permissionIds
+                                            },
+                                            success: function (data) {
+                                                if (permissionIds.length > 0){
+                                                    $.ajax({
+                                                        url: "/RolePermission/insertRolePermission",
+                                                        type: "post",
+                                                        async:false,
+                                                        data: {
+                                                            roleName: roleName,
+                                                            permissionIds: permissionIds,
+                                                            createTime: createTime,
+                                                            updateTime: updateTime
+                                                        }
+                                                    });
+                                                }
+                                                //关闭modal
+                                                role_modal.modal('hide');
+
+                                                swal({
+                                                    title: "添加成功",
+                                                    icon: "info"
+                                                }).then(function () {
+                                                    //刷新table
+                                                    table.ajax.reload();
+                                                })
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        }
+                    });
+                });
+            })
+
+            $(".modal-dialog").draggable();
+        });
+    })(jQuery);
+
+</script>
+
+</html>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.ProcedureVarDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.ProcedureVarEntity">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="procedure_id" jdbcType="INTEGER" property="procedureId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="cls" jdbcType="VARCHAR" property="cls" />
+    <result column="val" jdbcType="VARCHAR" property="val" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_procedure_var
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.example.demo.entity.ProcedureVarEntity">
+    insert into sys_procedure_var (id, procedure_id, name, 
+      cls, val)
+    values (#{id,jdbcType=INTEGER}, #{procedureId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
+      #{cls,jdbcType=VARCHAR}, #{val,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.ProcedureVarEntity">
+    update sys_procedure_var
+    set procedure_id = #{procedureId,jdbcType=INTEGER},
+      name = #{name,jdbcType=VARCHAR},
+      cls = #{cls,jdbcType=VARCHAR},
+      val = #{val,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, procedure_id, name, cls, val
+    from sys_procedure_var
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, procedure_id, name, cls, val
+    from sys_procedure_var
+  </select>
+  <select id="findProcedureVarByProcedureId" resultMap="BaseResultMap">
+    select v.id, v.procedure_id, v.name, v.cls, v.val
+    from sys_procedure_var v
+    inner join sys_procedure_var_call c on c.called_var_id = v.id
+    where c.procedure_id = #{procedureId,jdbcType=INTEGER}
+  </select>
+  <select id="selectByProcedureId" resultMap="BaseResultMap">
+    select id, procedure_id, name, cls, val
+    from sys_procedure_var
+    where procedure_id = #{procedureId,jdbcType=INTEGER}
+  </select>
+</mapper>

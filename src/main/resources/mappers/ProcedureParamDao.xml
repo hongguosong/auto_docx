@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.ProcedureParamDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.ProcedureParamEntity">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="procedure_id" jdbcType="INTEGER" property="procedureId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="cls" jdbcType="VARCHAR" property="cls" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="val" jdbcType="VARCHAR" property="val" />
+    <result column="comment" jdbcType="VARCHAR" property="comment" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_procedure_param
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.example.demo.entity.ProcedureParamEntity">
+    insert into sys_procedure_param (id, procedure_id, name, 
+      cls, type, val, comment
+      )
+    values (#{id,jdbcType=INTEGER}, #{procedureId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
+      #{cls,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{val,jdbcType=VARCHAR}, #{comment,jdbcType=VARCHAR}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.ProcedureParamEntity">
+    update sys_procedure_param
+    set procedure_id = #{procedureId,jdbcType=INTEGER},
+      name = #{name,jdbcType=VARCHAR},
+      cls = #{cls,jdbcType=VARCHAR},
+      type = #{type,jdbcType=VARCHAR},
+      val = #{val,jdbcType=VARCHAR},
+      comment = #{comment,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, procedure_id, name, cls, type, val, comment
+    from sys_procedure_param
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, procedure_id, name, cls, type, val, comment
+    from sys_procedure_param
+  </select>
+  <select id="findProcedureParamByProcedureId" resultMap="BaseResultMap">
+    select id, procedure_id, name, cls, type, val, comment
+    from sys_procedure_param
+    where procedure_id = #{procedureId,jdbcType=INTEGER} order by id
+  </select>
+</mapper>

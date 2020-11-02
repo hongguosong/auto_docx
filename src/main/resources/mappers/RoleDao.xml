@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.dao.RoleDao">
+    <select id="selectRoles" resultType="com.example.demo.entity.RoleEntity">
+        SELECT * FROM sys_role WHERE delete_id = 2
+    </select>
+
+    <insert id="insertRole">
+        INSERT INTO sys_role(role_name, create_time, update_time, role_desc) VALUES (#{roleName}, #{createTime}, #{updateTime}, #{roleDesc})
+    </insert>
+
+    <update id="updateRole">
+        UPDATE sys_role SET role_name = #{roleName}, create_time = #{createTime}, update_time = #{updateTime}, role_desc = #{roleDesc} WHERE id = #{id}
+    </update>
+
+    <update id="deleteRole">
+        UPDATE sys_role SET delete_id = 1 WHERE id = #{id}
+    </update>
+
+    <select id="selectRoleId" resultType="java.lang.Integer">
+        SELECT id FROM sys_role WHERE role_name = #{roleName} AND delete_id = 2
+    </select>
+
+    <select id="selectRoleNameById" resultType="java.lang.String">
+        SELECT role_name FROM sys_role WHERE id = #{id}
+    </select>
+
+    <select id="selectRoleByRoleName" resultType="com.example.demo.entity.RoleEntity">
+        SELECT * FROM sys_role WHERE role_name = #{roleName} AND delete_id = 2
+    </select>
+</mapper>

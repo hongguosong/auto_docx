@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.ProcedureDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.ProcedureEntity">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="long_name" jdbcType="VARCHAR" property="longName" />
+    <result column="full_name" jdbcType="VARCHAR" property="fullName" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="version" jdbcType="INTEGER" property="version" />
+    <result column="hash_value" jdbcType="VARCHAR" property="hashValue" />
+    <result column="return_type" jdbcType="VARCHAR" property="returnType" />
+    <result column="line_count" jdbcType="INTEGER" property="lineCount" />
+    <result column="comment" jdbcType="VARCHAR" property="comment" />
+    <result column="return_comment" jdbcType="VARCHAR" property="returnComment" />
+    <result column="parent_id" jdbcType="INTEGER" property="parentId" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <resultMap id="ProcedureDtoMap" type="com.example.demo.dto.ProcedureDto">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="long_name" jdbcType="VARCHAR" property="longName" />
+    <result column="full_name" jdbcType="VARCHAR" property="fullName" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="version" jdbcType="INTEGER" property="version" />
+    <result column="hash_value" jdbcType="VARCHAR" property="hashValue" />
+    <result column="return_type" jdbcType="VARCHAR" property="returnType" />
+    <result column="line_count" jdbcType="INTEGER" property="lineCount" />
+    <result column="comment" jdbcType="VARCHAR" property="comment" />
+    <result column="return_comment" jdbcType="VARCHAR" property="returnComment" />
+    <result column="parent_id" jdbcType="INTEGER" property="parentId" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="insert_flag" jdbcType="INTEGER" property="insertFlag" />
+    <result column="create_person" jdbcType="VARCHAR" property="createPerson" />
+    <result column="called_parent_id" jdbcType="INTEGER" property="calledParentId" />
+    <result column="desc_comment" jdbcType="VARCHAR" property="descComment" />
+  </resultMap>
+  <resultMap id="ProjectEntityMap" type="com.example.demo.entity.ProjectEntity">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="git_address" jdbcType="VARCHAR" property="gitAddress" />
+    <result column="git_name" jdbcType="VARCHAR" property="gitName" />
+    <result column="git_password" jdbcType="VARCHAR" property="gitPassword" />
+    <result column="create_person" jdbcType="VARCHAR" property="createPerson" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <sql id="Ref_Column_List">
+    r.id, r.name, r.long_name, r.full_name, r.type, r.version, r.hash_value, r.return_type, r.line_count, r.comment, r.return_comment, r.parent_id,
+    r.create_time, r.update_time
+  </sql>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_procedure
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.example.demo.entity.ProcedureEntity">
+    insert into sys_procedure (id, name, long_name, full_name,
+      type, version, hash_value,
+      return_type, line_count, comment, return_comment, parent_id,
+      create_time, update_time)
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{longName,jdbcType=VARCHAR}, #{fullName,jdbcType=VARCHAR},
+      #{type,jdbcType=INTEGER}, #{version,jdbcType=INTEGER}, #{hashValue,jdbcType=INTEGER},
+      #{returnType,jdbcType=VARCHAR}, #{lineCount,jdbcType=INTEGER}, #{comment,jdbcType=VARCHAR}, #{returnComment,jdbcType=VARCHAR}, #{parentId,jdbcType=INTEGER},
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.ProcedureEntity">
+    update sys_procedure
+    set name = #{name,jdbcType=VARCHAR},
+      long_name = #{longName,jdbcType=VARCHAR},
+      full_name = #{fullName,jdbcType=VARCHAR},
+      type = #{type,jdbcType=INTEGER},
+      version = #{version,jdbcType=INTEGER},
+      hash_value = #{hashValue,jdbcType=INTEGER},
+      return_type = #{returnType,jdbcType=VARCHAR},
+      line_count = #{lineCount,jdbcType=INTEGER},
+      comment = #{comment,jdbcType=VARCHAR},
+      return_comment = #{returnComment,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, name, long_name, full_name, type, version, hash_value, return_type, line_count, comment, return_comment, parent_id,
+    create_time, update_time
+    from sys_procedure
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, name, long_name,, full_name, type, version, hash_value, return_type, line_count, comment, return_comment, parent_id,
+    create_time, update_time
+    from sys_procedure
+  </select>
+  <select id="findProcedureListByFullName" resultMap="BaseResultMap">
+    SELECT * FROM sys_procedure WHERE full_name = #{fullName}
+  </select>
+  <select id="findProcedureListByLongName" resultMap="BaseResultMap">
+    SELECT * FROM sys_procedure WHERE long_name = #{longName}
+  </select>
+  <select id="findProcedureListByHashValue" resultMap="BaseResultMap">
+    SELECT * FROM sys_procedure WHERE full_name = #{fullName} AND hash_value = #{hashValue}
+  </select>
+  <select id="findProcedureListByPVAndAndFullNameHashValue" resultMap="ProcedureDtoMap">
+    select
+    <include refid="Ref_Column_List"/>, p.insert_flag from
+    sys_project_procedure p
+    left join sys_procedure r on r.id = p.procedure_id
+    where
+      p.project_id = #{projectId} AND p.project_version = #{projectVersion}
+      AND full_name = #{fullName} AND hash_value = #{hashValue}
+      AND (r.type = '2' OR r.type = '3' OR r.type = '4')
+  </select>
+  <select id="findProcedureListByIdAndVersion" resultMap="ProcedureDtoMap">
+    select
+    <include refid="Ref_Column_List"/>, p.insert_flag, d.comment desc_comment from
+    sys_project_procedure p
+    inner join sys_procedure r on r.id = p.procedure_id
+    inner join sys_fun_desc d on d.procedure_id = r.id
+    <where>
+      p.project_id = #{projectId} AND p.project_version = #{projectVersion}
+      AND (r.type = '2' OR r.type = '3' OR r.type = '4')
+      <if test="name != null and name != ''">
+        AND r.name like CONCAT('%',#{name},'%')
+      </if>
+      <if test="longName != null and longName != ''">
+          AND r.long_name like CONCAT('%',#{longName},'%')
+      </if>
+      <if test="fullName != null and fullName != ''">
+        AND r.full_name like CONCAT('%',#{fullName},'%')
+      </if>
+      <if test="version != null and version != ''">
+        AND r.version like CONCAT('%',#{version},'%')
+      </if>
+      <if test="hashValue != null and hashValue != ''">
+        AND r.hash_value like CONCAT('%',#{hashValue},'%')
+      </if>
+      <if test="returnType != null and returnType != ''">
+        AND r.return_type like CONCAT('%',#{returnType},'%')
+      </if>
+      <if test="lineCount != null and lineCount != ''">
+          AND r.line_count like CONCAT('%',#{lineCount},'%')
+      </if>
+      <if test="comment != null and comment != ''">
+        AND r.comment like CONCAT('%',#{comment},'%')
+      </if>
+      <if test="returnComment != null and returnComment != ''">
+        AND r.return_comment like CONCAT('%',#{returnComment},'%')
+      </if>
+      <if test="parentId != null and parentId != ''">
+        AND r.parent_id like CONCAT('%',#{parentId},'%')
+      </if>
+      <if test="createTime != null and createTime != ''">
+        AND r.create_time like CONCAT('%',#{creatTime},'%')
+      </if>
+      <if test="updateTime != null and updateTime != ''">
+        AND r.update_time like CONCAT('%',#{updateTime},'%')
+      </if>
+      <if test="insertFlag != null and insertFlag != '-1'">
+        AND p.insert_flag = #{insertFlag}
+      </if>
+      <if test="affirm != null and affirm == 0">
+        AND d.comment = ''
+      </if>
+      <if test="affirm != null and affirm == 1">
+        AND d.comment != ''
+      </if>
+      <if test="sortField != null and sortField != '' and sortOrder != null and sortOrder != ''">
+        ORDER BY CONVERT(${sortField} using utf8) ${sortOrder}
+      </if>
+    </where>
+  </select>
+  <select id="findProcedureListByIdAndVersionFull" resultMap="ProcedureDtoMap">
+    select
+    <include refid="Ref_Column_List"/>, p.insert_flag from
+    sys_project_procedure p
+    left join sys_procedure r on r.id = p.procedure_id
+    <where>
+      p.project_id = #{projectId} AND p.project_version = #{projectVersion}
+      AND (r.type = '2' OR r.type = '3' OR r.type = '4')
+      <if test="tcf != null and tcf == 'true'">
+        AND (LOWER(r.long_name),r.hash_value) not in (select t.function_name,t.hash_value from sys_tcf_file t)
+        AND (REPLACE(REPLACE(REPLACE(r.full_name, "(", "_"),")",""),",","_"),r.hash_value) not in (select t.function_name,t.hash_value from sys_tcf_file t)
+      </if>
+      <if test="coverage != null and coverage == 'true'">
+        AND (LOWER(r.long_name),r.hash_value) not in (select c.function_name,c.hash_value from sys_coverage_file c)
+        AND (REPLACE(REPLACE(REPLACE(r.full_name, "(", "_"),")",""),",","_"),r.hash_value) not in (select c.function_name,c.hash_value from sys_coverage_file c)
+      </if>
+      <if test="picture != null and picture == 'true'">
+        AND
+        (
+        ((LOWER(r.long_name),r.hash_value) not in (select e.function_name,e.hash_value from sys_picture_file e where e.file_type = 1) AND
+         (REPLACE(REPLACE(REPLACE(r.full_name, "(", "_"),")",""),",","_"),r.hash_value) not in (select e.function_name,e.hash_value from sys_picture_file e where e.file_type = 1)) OR
+        ((LOWER(r.long_name),r.hash_value) not in (select e.function_name,e.hash_value from sys_picture_file e where e.file_type = 2) AND
+         (REPLACE(REPLACE(REPLACE(r.full_name, "(", "_"),")",""),",","_"),r.hash_value) not in (select e.function_name,e.hash_value from sys_picture_file e where e.file_type = 2)) OR
+        ((LOWER(r.long_name),r.hash_value) not in (select e.function_name,e.hash_value from sys_picture_file e where e.file_type = 3) AND
+         (REPLACE(REPLACE(REPLACE(r.full_name, "(", "_"),")",""),",","_"),r.hash_value) not in (select e.function_name,e.hash_value from sys_picture_file e where e.file_type = 3))
+        )
+      </if>
+      <if test="problem != null and problem == 'true'">
+        AND ( LOWER(r.long_name) not in (select m.func_name from sys_problem m where m.project_id = #{projectId} and m.project_version = #{projectVersion}) )
+        AND ( REPLACE(REPLACE(REPLACE(r.full_name, "(", "_"),")",""),",","_") not in (select m.func_name from sys_problem m where m.project_id = #{projectId} and m.project_version = #{projectVersion}) )
+      </if>
+      <if test="insertFlag != null and insertFlag != '-1'">
+        AND p.insert_flag = #{insertFlag}
+      </if>
+    </where>
+  </select>
+  <select id="selectProcedureAll" resultMap="BaseResultMap">
+    select * from sys_procedure
+    <where>
+      (type = '2' OR type = '3' OR type = '4')
+      <if test="name != null and name != ''">
+        AND name like CONCAT('%',#{name},'%')
+      </if>
+      <if test="longName != null and longName != ''">
+        AND long_name like CONCAT('%',#{longName},'%')
+      </if>
+      <if test="fullName != null and fullName != ''">
+        AND full_name like CONCAT('%',#{fullName},'%')
+      </if>
+      <if test="version != null and version != ''">
+        AND version like CONCAT('%',#{version},'%')
+      </if>
+      <if test="hashValue != null and hashValue != ''">
+        AND hash_value like CONCAT('%',#{hashValue},'%')
+      </if>
+      <if test="returnType != null and returnType != ''">
+        AND return_type like CONCAT('%',#{returnType},'%')
+      </if>
+      <if test="lineCount != null and lineCount != ''">
+          AND line_count like CONCAT('%',#{lineCount},'%')
+      </if>
+      <if test="comment != null and comment != ''">
+        AND comment like CONCAT('%',#{comment},'%')
+      </if>
+      <if test="returnComment != null and returnComment != ''">
+        AND return_comment like CONCAT('%',#{returnComment},'%')
+      </if>
+      <if test="parentId != null and parentId != ''">
+        AND parent_id like CONCAT('%',#{parentId},'%')
+      </if>
+      <if test="createTime != null and createTime != ''">
+        AND create_time like CONCAT('%',#{creatTime},'%')
+      </if>
+      <if test="updateTime != null and updateTime != ''">
+        AND update_time like CONCAT('%',#{updateTime},'%')
+      </if>
+      ORDER BY long_name, version
+    </where>
+  </select>
+
+<!--  根据projectId查函数  -->
+  <select id="selectFunctionsByProjectId" resultMap="ProcedureDtoMap">
+    SELECT spd.*, spj.create_person FROM sys_procedure spd
+        LEFT JOIN sys_project_procedure spp ON spp.procedure_id = spd.id
+        LEFT JOIN sys_project spj ON spj.id = spp.project_id
+        WHERE
+        (spd.type = '2' OR spd.type = '3' OR spd.type = '4') AND spj.id = #{projectId} AND spp.project_version = #{projectVersion}
+  </select>
+
+    <!--  根据projectId查函数  -->
+  <select id="selectFunctionsByProjectId2" resultMap="ProcedureDtoMap">
+    SELECT spd.*, spj.create_person FROM sys_procedure spd
+        LEFT JOIN sys_project_procedure spp ON spp.procedure_id = spd.id
+        LEFT JOIN sys_project spj ON spj.id = spp.project_id
+        WHERE
+        (spd.type = '2' OR spd.type = '3' OR spd.type = '4') AND spj.id = #{projectId} AND spp.project_version = #{projectVersion}
+        limit #{startNum}, #{pageSize}
+  </select>
+
+  <select id="selectProcedureCount" resultType="java.lang.Integer">
+    select count(*) from
+    sys_project_procedure p
+    left join sys_procedure r on r.id = p.procedure_id
+    where
+    (r.type = '2' OR r.type = '3' OR r.type = '4') AND p.project_id = #{projectId} AND p.project_version = #{projectVersion} AND p.insert_flag = #{insertFlag,jdbcType=INTEGER}
+  </select>
+
+  <select id="findProjectByProcedureId" resultMap="ProjectEntityMap">
+    select spj.* from sys_project spj
+    inner join sys_project_procedure spp on spj.id = spp.project_id
+    inner join sys_procedure spd on spd.id = spp.procedure_id
+    where (spd.type = '2' OR spd.type = '3' OR spd.type = '4') AND spd.id = #{procedureId} AND spj.delete_id = '2'
+  </select>
+
+  <select id="getFuncCallByProAndV" resultMap="ProcedureDtoMap">
+    SELECT spd.*, spj.create_person, spc.procedure_id AS called_parent_id FROM sys_procedure_call spc
+    LEFT JOIN sys_procedure spd ON spd.id = spc.called_id
+    LEFT JOIN sys_project_procedure spp ON spp.procedure_id = spd.id
+    LEFT JOIN sys_project spj ON spj.id = spp.project_id
+    WHERE
+    (spd.type = '2' OR spd.type = '3' OR spd.type = '4') AND spj.id = #{projectId} AND spp.project_version = #{projectVersion}
+  </select>
+
+  <select id="getOverloadedFunByLongName" resultMap="BaseResultMap">
+    SELECT p.* from sys_procedure p
+    LEFT JOIN sys_project_procedure pp ON pp.procedure_id = p.id
+    WHERE
+    (p.type = '2' OR p.type = '3' OR p.type = '4') AND p.long_name = #{longName} AND pp.project_id = #{projectId} AND pp.project_version = #{projectVersion}
+  </select>
+  <select id="findNotOtherProjectUse" resultMap="BaseResultMap">
+    select p.* from sys_procedure p where p.id not in
+    (SELECT spp.procedure_id FROM sys_project sp INNER join sys_project_procedure spp on spp.project_id = sp.id
+     where sp.id!=#{projectId} and sp.delete_id='2' group by spp.procedure_id
+    ) and (type='2' or type = '3' or type='4')
+  </select>
+  <select id="findNotOtherProjectVersionUse" resultMap="BaseResultMap">
+    SELECT sp.* FROM sys_project_procedure spp inner join sys_procedure sp on sp.id = spp.procedure_id
+    where spp.project_id=#{projectId} and spp.project_version=#{projectVersion} and sp.id not in (
+        SELECT sp.id FROM sys_project_procedure spp inner join sys_procedure sp on sp.id = spp.procedure_id
+        where spp.project_id!=#{projectId} or spp.project_version!=#{projectVersion} group by sp.id
+    )
+  </select>
+  <select id="findNotOtherUsePackage" resultMap="BaseResultMap">
+    SELECT * FROM auto_docx.sys_procedure where id not in (select s.parent_id from sys_procedure s where s.parent_id != 'null' group by s.parent_id)
+    and (type='1' or type='5')
+  </select>
+  <select id="findProjectUse" resultMap="BaseResultMap">
+    SELECT p.* FROM sys_project sp
+    INNER JOIN sys_project_procedure spp on spp.project_id = sp.id
+    INNER JOIN sys_procedure p on p.id = spp.procedure_id
+    where sp.id=#{projectId} and sp.delete_id='2' group by p.id
+  </select>
+</mapper>

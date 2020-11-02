@@ -1,0 +1,37 @@
+<head th:fragment="common_header(title,links,styles)">
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title th:replace="${title}">Dashflat Admin</title>
+    <!-- base:css -->
+    <link rel="stylesheet" th:href="@{/vendors/mdi/css/materialdesignicons.min.css}">
+    <link rel="stylesheet" th:href="@{/vendors/feather/feather.css}">
+    <link rel="stylesheet" th:href="@{/vendors/css/vendor.bundle.base.css}">
+    <!-- endinject -->
+    <!-- plugin css for this page -->
+    <!--/* Per-page placeholder for additional links */-->
+    <th:block th:replace="${links}" />
+
+    <link rel="stylesheet" th:href="@{/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css}">
+    <link rel="stylesheet" th:href="@{/vendors/jquery-toast-plugin/jquery.toast.min.css}">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <link rel="stylesheet" th:href="@{/css/vertical-layout-light/style.css}">
+    <!-- endinject -->
+    <link rel="shortcut icon" th:href="@{/images/favicon.png}" />
+
+    <!--/* Per-page placeholder for additional styles */-->
+    <th:block th:replace="${styles}" />
+
+    <style>
+        .jsgrid .jsgrid-table .jsgrid-filter-row input[type=text] {
+            height: 35px;
+        }
+        .sidebar .nav {
+            overflow: inherit;
+            flex-wrap: nowrap;
+            flex-direction: column;
+            margin-bottom: 60px;
+        }
+    </style>
+</head>

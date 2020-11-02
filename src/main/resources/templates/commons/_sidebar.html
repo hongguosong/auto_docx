@@ -1,0 +1,102 @@
+<nav class="sidebar sidebar-offcanvas" id="sidebar" th:fragment="sidebar">
+  <ul class="nav">
+    <li class="nav-item nav-profile dropdown">
+      <div>
+        <a class="dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown" aria-expanded="false">
+          <div class="d-flex">
+              <!-- 不能使用th:src -->
+            <img src="/user/showAvatar" alt="profile" onerror="this.src='/images/faces/face2.jpg';this.onerror=null">
+            <div id="user-several-info" th:user-id="${userId}">
+              <span class="sidebar-profile-name font-weight-bold" th:text="${nickName}"></span>
+              <p class="sidebar-profile-designation text-muted text-small" th:text="${roleNames}"></p>
+            </div>
+          </div>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
+          <a class="dropdown-item" th:href="@{/pages/userSetting}">
+            <i class="mdi mdi-settings text-primary"></i>
+            设置
+          </a>
+          <a class="dropdown-item" th:href="@{/logout}">
+            <i class="mdi mdi-logout text-primary"></i>
+            退出
+          </a>
+        </div>
+      </div>
+    </li>
+
+
+
+
+    <li class="nav-item" th:each="menu1 : ${menuList}">
+      <div class="sidebar-menu-title">
+        <img th:src="@{${menu1.url}}" alt="" class="sidebar-icon-title">  <span th:text=" ${menu1.menuName}">Components</span>
+      </div>
+      <ul class="nav submenu-wrapper" th:if="${menu1.hasChildren}">
+        <li class="nav-item" th:each="menu2 : ${menu1.children}">
+          <a class="nav-link" data-toggle="collapse" href="#ui-basic"  th:if="${menu2.hasChildren}" aria-expanded="false" aria-controls="ui-basic">
+            <span class="menu-title" th:text=" ${menu2.menuName}">UI Elements</span>
+            <i class="menu-arrow"></i>
+          </a>
+          <a class="nav-link" th:href="@{${menu2.url}}" th:if="${!menu2.hasChildren}">
+            <span class="menu-title" th:text=" ${menu2.menuName}">UI Elements</span>
+          </a>
+          <div class="collapse" id="ui-basic" th:if="${menu2.hasChildren}">
+            <ul class="nav flex-column sub-menu">
+              <li class="nav-item" th:each="menu3 : ${menu2.children}">
+                <a class="nav-link" th:href="@{${menu3.url}}" th:text=" ${menu3.menuName}">Accordions</a>
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+    </li>
+
+<!--    <li class="nav-item">-->
+<!--      <div class="sidebar-menu-title">-->
+<!--        <img th:src="@{/images/sidebar/web.svg}" alt="" class="sidebar-icon-title">  <span>测试报告生成管理</span>-->
+<!--      </div>-->
+<!--      <ul class="nav submenu-wrapper" id="menu3">-->
+<!--        <li class="nav-item">-->
+<!--          <a class="nav-link" th:href="@{/pages/project}">-->
+<!--            <span class="menu-title">项目管理</span>-->
+<!--          </a>-->
+<!--        </li>-->
+<!--        <li class="nav-item">-->
+<!--          <a class="nav-link" th:href="@{/pages/promblem}">-->
+<!--            <span class="menu-title">问题单管理</span>-->
+<!--          </a>-->
+<!--        </li>-->
+<!--        <li class="nav-item">-->
+<!--          <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">-->
+<!--            <span class="menu-title">文件管理</span>-->
+<!--            <i class="menu-arrow"></i>-->
+<!--          </a>-->
+<!--          <div class="collapse" id="ui-basic">-->
+<!--            <ul class="nav flex-column sub-menu">-->
+<!--              <li class="nav-item"> <a class="nav-link" th:href="@{/pages/wordTempFile}">Word模板文件</a></li>-->
+<!--              <li class="nav-item"> <a class="nav-link" th:href="@{/pages/tcfFile}">TCF文件</a></li>-->
+<!--              <li class="nav-item"> <a class="nav-link" th:href="@{/pages/coverageFile}">覆盖率文件</a></li>-->
+<!--              <li class="nav-item"> <a class="nav-link" th:href="@{/pages/picture}">图片</a></li>-->
+<!--            </ul>-->
+<!--          </div>-->
+<!--        </li>-->
+<!--        <li class="nav-item">-->
+<!--          <a class="nav-link" th:href="@{/pages/testCase}">-->
+<!--            <span class="menu-title">测试用例管理</span>-->
+<!--          </a>-->
+<!--        </li>-->
+<!--        <li class="nav-item">-->
+<!--          <a class="nav-link" th:href="@{/pages/email}">-->
+<!--            <span class="menu-title">邮箱</span>-->
+<!--          </a>-->
+<!--        </li>-->
+<!--        <li class="nav-item">-->
+<!--          <a class="nav-link" th:href="@{/pages/wizard}">-->
+<!--            <span class="menu-title">项目新建</span>-->
+<!--          </a>-->
+<!--        </li>-->
+<!--      </ul>-->
+<!--    </li>-->
+  </ul>
+</nav>

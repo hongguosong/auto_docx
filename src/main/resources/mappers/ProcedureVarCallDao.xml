@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.ProcedureVarCallDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.ProcedureVarCallEntity">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="procedure_id" jdbcType="INTEGER" property="procedureId" />
+    <result column="called_var_id" jdbcType="INTEGER" property="calledVarId" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_procedure_var_call
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.example.demo.entity.ProcedureVarCallEntity">
+    insert into sys_procedure_var_call (id, procedure_id, called_var_id
+      )
+    values (#{id,jdbcType=INTEGER}, #{procedureId,jdbcType=INTEGER}, #{calledVarId,jdbcType=INTEGER}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.ProcedureVarCallEntity">
+    update sys_procedure_var_call
+    set procedure_id = #{procedureId,jdbcType=INTEGER},
+      called_var_id = #{calledVarId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, procedure_id, called_var_id
+    from sys_procedure_var_call
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, procedure_id, called_var_id
+    from sys_procedure_var_call
+  </select>
+  <select id="selectByProcedureId" resultMap="BaseResultMap">
+    select id, procedure_id, called_var_id
+    from sys_procedure_var_call
+    where procedure_id = #{procedureId,jdbcType=INTEGER}
+  </select>
+  <select id="selectByProcedureIdAndCalledVarId" resultMap="BaseResultMap">
+    select id, procedure_id, called_var_id
+    from sys_procedure_var_call
+    where procedure_id = #{procedureId,jdbcType=INTEGER} and called_var_id = #{calledVarId,jdbcType=INTEGER}
+  </select>
+</mapper>

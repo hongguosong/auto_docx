@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.ReportDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.ReportEntity">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="create_person" jdbcType="VARCHAR" property="createPerson" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="project_id" jdbcType="INTEGER" property="projectId" />
+    <result column="project_version" jdbcType="VARCHAR" property="projectVersion" />
+    <result column="file_type" jdbcType="INTEGER" property="fileType" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_report
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.entity.ReportEntity">
+    <selectKey  keyProperty="id" order="AFTER" resultType="int">
+      select LAST_INSERT_ID()
+    </selectKey>
+    insert into sys_report (name, description,
+      create_person, create_time, url, 
+      project_id, project_version, file_type, address)
+    values (#{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
+      #{createPerson,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{url,jdbcType=VARCHAR}, 
+      #{projectId,jdbcType=INTEGER}, #{projectVersion,jdbcType=VARCHAR}, #{fileType,jdbcType=INTEGER},
+      #{address,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.ReportEntity">
+    update sys_report
+    set name = #{name,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      create_person = #{createPerson,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      url = #{url,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=INTEGER},
+      project_version = #{projectVersion,jdbcType=VARCHAR}
+      file_type = #{fileType,jdbcType=INTEGER},
+      address = #{address,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, name, description, create_person, create_time, url, project_id, project_version, file_type, address
+    from sys_report
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, name, description, create_person, create_time, url, project_id, project_version, file_type, address
+    from sys_report
+  </select>
+  <select id="findProcedureListByIdAndVersion" resultMap="BaseResultMap">
+    select id, name, description, create_person, create_time, url, project_id, project_version, file_type, address
+    from sys_report
+    where project_id = #{project,jdbcType=INTEGER} AND project_version = #{version,jdbcType=VARCHAR}
+  </select>
+</mapper>

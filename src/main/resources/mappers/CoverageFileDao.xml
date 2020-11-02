@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.CoverageFileDao">
+  <resultMap id="BaseResultMap" type="com.example.demo.entity.CoverageFileEntity">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="file_url" jdbcType="VARCHAR" property="fileUrl" />
+    <result column="function_name" jdbcType="VARCHAR" property="functionName" />
+    <result column="statement_coverage" jdbcType="VARCHAR" property="statementCoverage" />
+    <result column="branch_coverage" jdbcType="VARCHAR" property="branchCoverage" />
+    <result column="mcdc_coverage" jdbcType="VARCHAR" property="mcdcCoverage" />
+    <result column="creat_person" jdbcType="VARCHAR" property="creatPerson" />
+    <result column="creat_time" jdbcType="TIMESTAMP" property="creatTime" />
+    <result column="project_id" jdbcType="INTEGER" property="projectId" />
+    <result column="project_version" jdbcType="VARCHAR" property="projectVersion" />
+    <result column="hash_value" jdbcType="VARCHAR" property="hashValue" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_coverage_file
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByFunctionNameAndHashValue">
+    delete from sys_coverage_file
+    where (function_name = #{longName,jdbcType=VARCHAR} or function_name = REPLACE(REPLACE(REPLACE(#{fullName,jdbcType=VARCHAR}, "(", "_"),")",""),",","_"))
+    and hash_value = #{hashValue,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.entity.CoverageFileEntity">
+    <selectKey  keyProperty="id" order="AFTER" resultType="int">
+      select LAST_INSERT_ID()
+    </selectKey>
+    insert into sys_coverage_file (file_name, file_url,
+      function_name, statement_coverage, branch_coverage, mcdc_coverage,
+      creat_person, creat_time, project_id,
+      project_version, hash_value)
+    values (#{fileName,jdbcType=VARCHAR}, #{fileUrl,jdbcType=VARCHAR},
+      #{functionName,jdbcType=VARCHAR}, #{statementCoverage,jdbcType=VARCHAR}, #{branchCoverage,jdbcType=VARCHAR}, #{mcdcCoverage,jdbcType=VARCHAR},
+      #{creatPerson,jdbcType=VARCHAR}, #{creatTime,jdbcType=TIMESTAMP}, #{projectId,jdbcType=INTEGER},
+      #{projectVersion,jdbcType=VARCHAR}, #{hashValue,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.entity.CoverageFileEntity">
+    update sys_coverage_file
+    set file_name = #{fileName,jdbcType=VARCHAR},
+      file_url = #{fileUrl,jdbcType=VARCHAR},
+      function_name = #{functionName,jdbcType=VARCHAR},
+      statement_coverage = #{statementCoverage,jdbcType=VARCHAR},
+      branch_coverage = #{branchCoverage,jdbcType=VARCHAR},
+      mcdc_coverage = #{mcdcCoverage,jdbcType=VARCHAR},
+      creat_person = #{creatPerson,jdbcType=VARCHAR},
+      creat_time = #{creatTime,jdbcType=TIMESTAMP},
+      project_id = #{projectId,jdbcType=INTEGER},
+      project_version = #{projectVersion,jdbcType=VARCHAR},
+      hash_value = #{hashValue,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, file_name, file_url, function_name, statement_coverage, branch_coverage, mcdc_coverage,
+    creat_person, creat_time, project_id, project_version, hash_value
+    from sys_coverage_file
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, file_name, file_url, function_name, statement_coverage, branch_coverage, mcdc_coverage,
+    creat_person, creat_time, project_id, project_version, hash_value
+    from sys_coverage_file
+  </select>
+  <select id="selectByNameAndProjectIdAndVersion" resultMap="BaseResultMap">
+    select id, file_name, file_url, function_name, statement_coverage, branch_coverage, mcdc_coverage,
+    creat_person, creat_time, project_id, project_version, hash_value
+    from sys_coverage_file
+    where function_name = #{name,jdbcType=VARCHAR} AND
+      project_id = #{projectId,jdbcType=INTEGER} AND
+      project_version = #{version,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByProjectIdAndVersion" resultMap="BaseResultMap">
+    select id, file_name, file_url, function_name, statement_coverage, branch_coverage, mcdc_coverage,
+    creat_person, creat_time, project_id, project_version, hash_value
+    from sys_coverage_file
+    where
+    ((function_name,hash_value) in
+    (SELECT pd.long_name,pd.hash_value FROM sys_procedure pd
+	 LEFT JOIN sys_project_procedure pdd ON pdd.procedure_id = pd.id
+     WHERE pdd.project_id = #{projectId,jdbcType=INTEGER} AND pdd.project_version = #{version,jdbcType=VARCHAR}))
+    OR
+    ((function_name,hash_value) in
+    (SELECT REPLACE(REPLACE(REPLACE(pd.full_name, "(", "_"),")",""),",","_"),pd.hash_value FROM sys_procedure pd
+	 LEFT JOIN sys_project_procedure pdd ON pdd.procedure_id = pd.id
+     WHERE pdd.project_id = #{projectId,jdbcType=INTEGER} AND pdd.project_version = #{version,jdbcType=VARCHAR}))
+  </select>
+  <select id="findCoverageFileByProcedureFullName" resultMap="BaseResultMap">
+    select id, file_name, file_url, function_name, statement_coverage, branch_coverage, mcdc_coverage,
+    creat_person, creat_time, project_id, project_version, hash_value
+    from sys_coverage_file
+    where function_name = #{functionName,jdbcType=VARCHAR} and
+    project_id = #{projectId,jdbcType=INTEGER} and
+    project_version = #{version,jdbcType=VARCHAR}
+  </select>
+  <select id="findCoverageFileByFuncName" resultMap="BaseResultMap">
+    select id, file_name, file_url, function_name, statement_coverage, branch_coverage, mcdc_coverage,
+    creat_person, creat_time, project_id, project_version, hash_value
+    from sys_coverage_file
+    where function_name = #{functionName,jdbcType=VARCHAR} and hash_value = #{hashValue,jdbcType=VARCHAR}
+  </select>
+  <update id="updateCoverageFileByFuncName" parameterType="com.example.demo.entity.CoverageFileEntity">
+    update sys_coverage_file
+    set file_name = #{fileName,jdbcType=VARCHAR},
+    file_url = #{fileUrl,jdbcType=VARCHAR},
+    statement_coverage = #{statementCoverage,jdbcType=VARCHAR},
+    branch_coverage = #{branchCoverage,jdbcType=VARCHAR},
+    mcdc_coverage = #{mcdcCoverage,jdbcType=VARCHAR},
+    creat_person = #{creatPerson,jdbcType=VARCHAR},
+    creat_time = #{creatTime,jdbcType=TIMESTAMP},
+    project_id = #{projectId,jdbcType=INTEGER},
+    project_version = #{projectVersion,jdbcType=VARCHAR}
+    where function_name = #{functionName,jdbcType=VARCHAR}
+    and hash_value = #{hashValue,jdbcType=VARCHAR}
+  </update>
+</mapper>
